@@ -1,0 +1,204 @@
+<div class="row-fluid" style="margin-top: 50px" xmlns="http://www.w3.org/1999/html">
+
+  <div class="span12">
+
+    <div class="portlet box grey" id="form_wizard_1">
+
+      <div class="portlet-title">
+
+        <div class="caption"><i class="icon-file-text"></i>用户反馈审核</div>
+
+        <div class="actions">
+
+          <button type="button" class="btn black" onclick="history.go(-1);"><i class="icon-arrow-left"></i> 返回</button>
+
+        </div>
+
+      </div>
+
+      <div class="portlet-body form">
+
+        <%= form_for(@comment, {:html => {:remote => true, :class => "form-horizontal", :id => "submit_form", :autocomplete => "off"}}) do |f| %>
+
+            <div class="alert alert-error hide">
+
+              <button class="close" data-dismiss="alert"></button>
+
+              表格中有错误，请仔细检查.
+
+            </div>
+
+            <div class="alert alert-success hide">
+
+              <button class="close" data-dismiss="alert"></button>
+
+              表格验证正确!
+
+            </div>
+
+            <div class="control-group">
+
+              <label class="control-label">账号</label>
+
+              <div class="controls">
+                <label class="control-label"><%= (@comment.user.blank?) ? '该用户已被删除' : @comment.user.account %></label>
+
+              </div>
+
+            </div>
+
+            <div class="control-group">
+
+              <label class="control-label">内容</label>
+
+              <div class="controls">
+                <label class="control-label"><%= @comment.content %></label>
+
+              </div>
+
+            </div>
+
+            <div class="control-group">
+
+              <label class="control-label">状态<span class="required"></span></label>
+
+              <div class="controls">
+                <label class="control-label"><%= COMMENT_STATUS_REVERSE[@comment.status] %></label>
+
+              </div>
+
+            </div>
+
+            <% if @comment.status == COMMENT_STATUS[:bonus] %>
+
+                <div class="control-group">
+
+                  <label class="control-label">已奖励积分</label>
+
+                  <label class="control-label"><%= @comment.bonus_integral %></label>
+
+                </div>
+
+            <% else %>
+
+                <div class="control-group input-icon">
+
+                  <label class="control-label">奖励积分</label>
+
+                  <input type="text" style="margin-left: 80px" class="span3 m-wrap" name="bonus_integral" placeholder="1～10" value="<%= (@comment.bonus_integral==0) ? nil : @comment.bonus_integral %>"/>
+
+                </div>
+
+            <% end %>
+
+            <div class="form-actions">
+
+              <button type="button" class="btn green" onclick="validate()">保存</button>
+
+              <button type="button" class="btn red" onclick="history.go(-1);">取消</button>
+
+            </div>
+
+        <% end %>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+
+</div>
+
+<script>
+    $('#brand_chain_switch').toggleButtons({
+        width: 100,
+        label: {
+            enabled: "已审核",
+            disabled: "未审核"
+        },
+        style: {
+            // Accepted values ["primary", "danger", "info", "success", "warning"] or nothing
+            enabled: "info",
+            disabled: "danger"
+        }
+    });
+
+
+    var form = $('#submit_form');
+    var error = $('.alert-error', form);
+
+    form.validate({
+        doNotHideMessage: true, //this option enables to show the error/success messages on tab switch.
+        errorElement: 'span', //default input error message container
+        errorClass: 'input-error tooltips', // default input error message class
+        validClass: 'input-success tooltips',
+        focusInvalid: false, // do not focus the last invalid input
+        ignore: ".ignore",
+        rules: {
+            bonus_integral: {
+                number: true,
+                max: 10,
+                min: 0
+            }
+        },
+
+
+        invalidHandler: function (event, validator) { //display error alert on form submit
+            error.show();
+            App.scrollTo(error, -200);
+        },
+
+        highlight: function (element) { // hightlight error inputs
+            $(element)
+                    .closest('.help-inline').removeClass('ok'); // display OK icon
+            $(element)
+                    .closest('.control-group').removeClass('success').addClass('error'); // set error class to the control group
+        },
+
+        unhighlight: function (element) { // revert the change dony by hightlight
+            $(element)
+                    .closest('.control-group').removeClass('error'); // set error class to the control group
+        },
+
+        success: function (label, element) {
+            //自定义成功提示
+            label.closest('.control-group').removeClass('error').addClass('success'); // set success class to the control group
+            label.html("<i class='help-inline ok' style='margin-top: 0;'></i>");
+            label.insertAfter(element);
+        },
+
+        error: function (label, element) {
+            //自定义成功提示
+            label.closest('.control-group').removeClass('success').addClass('error'); // set success class to the control group
+            label.attr("data-original-title", label.text());
+            label.html("<i class='icon-exclamation-sign'></i>");
+            label.insertAfter(element);
+        },
+
+        update: function () {
+            App.updateTooltips();
+        },
+
+        submitHandler: function (form) {
+            error.hide();
+            jQuery.ajax({
+                type: 'POST',
+                url: $(form).attr("action"),
+                data: $(form).serialize(),
+                dataType: 'script'
+            });
+            //add here some ajax code to submit your form or just call form.submit() if you want to submit the form without ajax
+        }
+    });
+
+    function validate() {
+        form.submit();
+    }
+
+</script>
+

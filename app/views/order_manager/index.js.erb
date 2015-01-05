@@ -1,0 +1,10 @@
+var pageContentBody = $('.page-content .page-content-body');
+pageContentBody.html("<%= escape_javascript(render 'index') %>");
+
+$("#order_notification").html("<li><p>暂无新消息</p></li>");
+$('#order_notification_badge').text(0);
+$('#order_notification_badge').hide()
+
+$("#score_notification").html("<li><p>暂无新评价</p></li>");
+$('#score_notification_badge').text(0);
+$('#score_notification_badge').hide()

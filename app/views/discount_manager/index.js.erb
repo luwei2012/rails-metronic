@@ -1,0 +1,16 @@
+var pageContentBody = $('.page-content .page-content-body');
+pageContentBody.html("<%= escape_javascript(render 'index') %>");
+App.scrollTop();
+tab = "#tab_" + "<%= (@discount_type_id.blank?)?0: @discount_type_id %>";
+
+if ($(tab).length > 0) {
+    var menuContainer = jQuery('#nav_tabs');
+
+    menuContainer.children('li.active').removeClass('active');
+
+    $(tab).parents('li').each(function () {
+        $(tab).addClass('active');
+    });
+
+    $(tab).parents('li').addClass('active');
+}

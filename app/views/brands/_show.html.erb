@@ -1,0 +1,82 @@
+<div class="form-horizontal form-view">
+
+  <h3 class="form-section">详细信息</h3>
+
+
+  <div class="row-fluid">
+
+    <div class="span6 ">
+
+      <div class="control-group">
+
+        <label class="control-label">logo:</label>
+
+        <div class="controls">
+
+          <% if !@brand.brand_photo.blank? && Document.exists?(@brand.brand_photo) %>
+
+              <img src="<%= Document.find(@brand.brand_photo).original %>"/>
+          <% else %>
+              <img src="<%= asset_path('default_brand.jpg') %>" alt="">
+          <% end %>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="row-fluid">
+
+    <div class="span6 ">
+
+      <div class="control-group">
+
+        <label class="control-label" for="name">品牌/连锁名:</label>
+
+        <div class="controls">
+
+          <span class="text"><%= @brand.name %></span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="row-fluid">
+
+    <div class="span6 ">
+
+      <div class="control-group">
+
+        <label class="control-label">店铺数量:</label>
+
+        <div class="controls">
+
+          <span class="text"><%= (@brand.shops.blank?) ? 0 : @brand.shops.count %></span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+  <!--/row-->
+
+
+  <div class="row-fluid" style="padding-left: 10%;">
+    <a href="/brands/<%= @brand.id %>/edit" class="btn blue" data-remote="true" data-method="get" ><i class="icon-pencil"></i>
+      编辑</a>
+
+    <button type="button" class="btn black" onclick="history.go(-1);"><i class="icon-arrow-left"></i> 返回</button>
+  </div>
+
+
+</div>

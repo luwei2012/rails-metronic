@@ -1,0 +1,84 @@
+<div class="form-horizontal form-view">
+
+  <h3 class="form-section">详细信息</h3>
+
+
+  <div class="row-fluid">
+
+    <div class="span6 ">
+
+      <div class="control-group">
+
+        <label class="control-label">icon:</label>
+
+        <div class="controls">
+
+          <% if !@discount_type.icon.blank? && Document.exists?(@discount_type.icon) %>
+
+              <img src="<%= Document.find(@discount_type.icon).original %>"/>
+          <% else %>
+              <img src="<%= asset_path('default_discount_type.png') %>" alt="">
+          <% end %>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="row-fluid">
+
+    <div class="span6 ">
+
+      <div class="control-group">
+
+        <label class="control-label" for="name">服务类型名:</label>
+
+        <div class="controls">
+
+          <span class="text"><%= @discount_type.name %></span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="row-fluid">
+
+    <div class="span6 ">
+
+      <div class="control-group">
+
+        <label class="control-label">子类型数目:</label>
+
+        <div class="controls">
+
+          <% discountTypes = DiscountType.where('parent = ?', @discount_type.id) %>
+
+          <span class="text"><%= (discountTypes.blank?) ? '0' : "#{discountTypes.count}" %></span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+  <!--/row-->
+
+
+  <div class="row-fluid" style="padding-left: 10%;">
+    <a href="/discount_types/<%= @discount_type.id %>/edit" class="btn blue" data-remote="true" data-method="get" ><i class="icon-pencil"></i>
+      编辑</a>
+
+    <button type="button" class="btn black" onclick="history.go(-1);"><i class="icon-arrow-left"></i> 返回</button>
+  </div>
+
+
+</div>

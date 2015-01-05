@@ -1,0 +1,2 @@
+module ShopManagerHelper
+end

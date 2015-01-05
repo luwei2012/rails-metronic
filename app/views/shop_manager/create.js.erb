@@ -1,0 +1,9 @@
+var pageContentBody = $('.page-content .page-content-body');
+
+<% if @shop.errors.any?%>
+<!--创建不成功-->
+pageContentBody.html("<%= escape_javascript(render 'new') %>");
+<% else %>
+pageContentBody.html("<%= escape_javascript(render 'index') %>");
+<% end %>
+$('#messages').html('<%= escape_javascript(render('/layouts/messages')) %>');

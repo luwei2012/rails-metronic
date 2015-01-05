@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!--[if IE 8]>
+<html lang="en" class="ie8"> <![endif]-->
+
+<!--[if IE 9]>
+<html lang="en" class="ie9"> <![endif]-->
+
+<!--[if !IE]><!-->
+<html lang="en"> <!--<![endif]-->
+
+<head>
+  <title>工作流系统</title>
+
+  <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true %>
+  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+  <%= csrf_meta_tags %>
+  <link rel="shortcut icon" href="<%= asset_path('image/favicon.ico') %>"/>
+</head>
+<body class="login">
+
+<!-- BEGIN LOGO -->
+
+<div class="logo">
+
+  <img src="<%= asset_path('image/logo.png') %>" alt=""/>
+
+</div>
+
+<!-- END LOGO -->
+
+<!-- BEGIN LOGIN -->
+
+<div class="content" id="login_content">
+
+  <!-- BEGIN LOGIN FORM -->
+  <%= yield %>
+
+
+</div>
+
+<!-- END LOGIN -->
+
+<!-- BEGIN COPYRIGHT -->
+
+<div class="copyright">
+
+  &copy; 优雅科技 2013
+
+</div>
+
+<!-- END COPYRIGHT -->
+
+
+<!-- END JAVASCRIPTS -->
+
+</body>
+
+<!-- END BODY -->
+
+</html>

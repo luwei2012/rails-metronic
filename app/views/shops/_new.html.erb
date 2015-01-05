@@ -1,0 +1,14 @@
+<%= render 'form' %>
+<script>
+    $('#form_wizard_1 .button-submit').click(function () {
+        if ($('#submit_form').valid()) {
+            jQuery.ajax({
+                type: 'POST',
+                url: $('#submit_form').attr("action"),
+                data: $('#submit_form').serialize(),
+                dataType: 'script'
+            });
+        }
+
+    }).hide();
+</script>

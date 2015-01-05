@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<!--[if IE 8]>
+<html lang="en" class="ie8"> <![endif]-->
+
+<!--[if IE 9]>
+<html lang="en" class="ie9"> <![endif]-->
+
+<!--[if !IE]><!-->
+<html lang="en"> <!--<![endif]-->
+<head>
+  <title>工作流系统</title>
+  <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true %>
+  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+  <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ZerxZ4SMx50RzgmUzfGmbrGy"></script>
+  <%= csrf_meta_tags %>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+</head>
+
+<!-- BEGIN BODY -->
+
+<body class="page-header-fixed page-sidebar-fixed page-footer-fixed">
+
+<!-- BEGIN HEADER -->
+
+<div class="header navbar navbar-inverse navbar-fixed-top">
+
+  <!-- BEGIN TOP NAVIGATION BAR -->
+
+  <div class="navbar-inner">
+
+    <div class="container-fluid">
+
+      <!-- BEGIN LOGO -->
+
+      <a class="brand" href="index.html">
+
+        <img src="<%= asset_path('image/logo.png') %>" alt="logo"/>
+
+      </a>
+
+      <!-- END LOGO -->
+
+      <!-- BEGIN RESPONSIVE MENU TOGGLER -->
+
+      <a href="javascript:;" class="btn-navbar collapsed" data-toggle="collapse" data-target=".nav-collapse">
+
+        <img src="<%= asset_path('image/menu-toggler.png') %>" alt=""/>
+
+      </a>
+
+      <!-- END RESPONSIVE MENU TOGGLER -->
+
+      <!-- BEGIN TOP NAVIGATION MENU -->
+
+      <ul class="nav pull-right">
+
+        <!-- BEGIN NOTIFICATION DROPDOWN -->
+
+        <li class="dropdown" id="score_notification_bar">
+
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+
+            <i class="icon-warning-sign"></i>
+
+            <span class="badge" style="display: none" id="score_notification_badge">0</span>
+
+          </a>
+
+          <ul class="dropdown-menu extended notification" id="score_notification">
+
+            <li>
+
+              <p>暂无新评分</p>
+
+            </li>
+
+          </ul>
+
+        </li>
+
+        <!-- END NOTIFICATION DROPDOWN -->
+
+        <!-- BEGIN INBOX DROPDOWN -->
+
+        <li class="dropdown" id="order_notification_bar">
+
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+
+            <i class="icon-envelope"></i>
+
+            <span class="badge" style="display: none" id="order_notification_badge">0</span>
+
+          </a>
+
+          <ul class="dropdown-menu extended inbox" id="order_notification">
+
+            <li class="count">
+
+              <p>暂无新消息</p>
+
+            </li>
+
+          </ul>
+
+        </li>
+
+        <!-- END INBOX DROPDOWN -->
+
+        <!-- BEGIN USER LOGIN DROPDOWN -->
+
+        <li class="dropdown user">
+
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+
+            <img alt="" src="<%= asset_path('image/avatar1_small.jpg') %>"/>
+
+            <span class="username"><%= session[:name] %></span>
+
+            <i class="icon-angle-down"></i>
+
+          </a>
+
+          <ul class="dropdown-menu">
+
+            <li><a href="/modify?id=<%= session[:user_id] %>"><i class="icon-edit"></i> 修改密码</a></li>
+
+            <li><a href="/logout"><i class="icon-key"></i> 退出账号</a></li>
+
+
+          </ul>
+
+        </li>
+
+        <!-- END USER LOGIN DROPDOWN -->
+
+      </ul>
+
+      <!-- END TOP NAVIGATION MENU -->
+
+    </div>
+
+  </div>
+
+  <!-- END TOP NAVIGATION BAR -->
+
+</div>
+
+<!-- END HEADER -->
+
+<!-- BEGIN CONTAINER -->
+
+<div class="page-container row-fluid">
+
+
+  <!-- BEGIN SIDEBAR1 -->
+
+  <div class="page-sidebar nav-collapse collapse">
+
+    <!-- BEGIN SIDEBAR MENU1 -->
+
+    <ul class="page-sidebar-menu">
+
+      <li>
+
+        <!-- BEGIN SIDEBAR TOGGLER BUTTON -->
+
+        <div class="sidebar-toggler hidden-phone"></div>
+
+        <!-- BEGIN SIDEBAR TOGGLER BUTTON -->
+
+      </li>
+
+      <li class="">
+
+        <a class="ajaxify order_manager" href="/order_manager">
+
+          <i class="icon-tasks"></i>
+
+          <span class="title">订单管理</span>
+
+          <span class="selected"></span>
+
+        </a>
+
+      </li>
+
+      <li class="">
+
+        <a class="ajaxify shop_manager" href="/shop_manager">
+
+          <i class="icon-home"></i>
+
+          <span class="title">店铺信息</span>
+
+          <span class="selected"></span>
+
+        </a>
+
+      </li>
+
+      <% if session[:wash]==1 %>
+
+          <li class="">
+
+            <a class="ajaxify time_manager" href="/time_manager">
+
+              <i class="icon-calendar"></i>
+
+              <span class="title">洗车预约安排</span>
+
+              <span class="selected"></span>
+
+            </a>
+
+          </li>
+
+      <% end %>
+
+      <li class="">
+
+        <a class="ajaxify discount_manager" href="/discount_manager">
+
+          <i class="icon-cogs"></i>
+
+          <span class="title">服务信息</span>
+
+          <span class="selected"></span>
+
+        </a>
+
+      </li>
+
+    </ul>
+
+    <!-- END SIDEBAR MENU1 -->
+
+  </div>
+
+  <!-- END SIDEBAR1 -->
+
+  <!-- BEGIN PAGE -->
+
+  <div class="page-content">
+
+    <!-- BEGIN PAGE CONTAINER-->
+
+    <div class="container-fluid">
+
+      <div id="messages">
+      </div>
+      <div id="confirm">
+        <%= render '/layouts/confirm_modal' %>
+      </div>
+      <div class="page-content-body">
+        <div class="span9" style="min-height: 480px;">
+          <%= yield %>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- HERE WILL BE LOADED AN AJAX CONTENT -->
+
+  </div>
+
+  <!-- BEGIN PAGE -->
+
+</div>
+
+<!-- END CONTAINER -->
+
+<!-- BEGIN FOOTER -->
+
+<div class="footer">
+
+  <div class="footer-inner">
+
+    &copy; 优雅科技 2013
+
+  </div>
+
+  <div class="footer-tools">
+
+			<span class="go-top">
+
+			<i class="icon-angle-up"></i>
+
+			</span>
+
+  </div>
+
+</div>
+
+<!-- END FOOTER -->
+<script>
+    <% port = '80' %>
+    <% if Rails.env != 'production' %>
+    <% port = WebsocketRails.config.standalone_port %>
+    <%end%>
+    var dispatcher = new WebSocketRails('<%= request.host %>:<%= port %>/websocket')
+    var channel = dispatcher.subscribe('<%= Employee.find(session[:user_id]).email %>');
+    channel.bind('order', function (data) {
+        $.ajax({
+            async: false,
+            type: 'GET',
+            url: '/order_manager/order_notifications',
+            dataType: "json",
+            success: function (result, textStatus, jqXHR) {
+                var count = result.count
+                if (count > 0) {
+                    result = result.order_notifications
+                    $("#order_notification").html("<li><p>您有" + count + "条新消息</p></li>");
+                    for (var i = 0; i < count; i++) {
+                        var htmlStr = "<li><a href='javascript:;'>" +
+                                "<span class='photo'><img src=" + result[i].user_photo + "></span>" +
+                                "<span class='subject'><span class='from'>" + result[i].name +
+                                "</span><span class='time'>" + result[i].created_at + "</span></span>" +
+                                "<span class='message'>" + result[i].title + "</span></a></li>"
+                        $("#order_notification").append(htmlStr);
+                    }
+                } else {
+                    $("#order_notification").html("<li><p>暂无新消息</p></li>");
+                    $('#order_notification_badge').text(count);
+                }
+                order_notification(data, count);
+                App.fixContentHeight(); // fix content height
+                App.initUniform(); // initialize uniform elements
+            }
+        });
+    });
+    channel.bind('score', function (data) {
+        $.ajax({
+            async: false,
+            type: 'GET',
+            url: '/order_manager/score_notifications',
+            dataType: "json",
+            success: function (result, textStatus, jqXHR) {
+                var count = result.count
+                if (count > 0) {
+                    result = result.score_notifications
+                    $("#score_notification").html("<li><p>您有" + count + "条新评价</p></li>");
+                    for (var i = 0; i < count; i++) {
+                        var htmlStr = "<li><a href='javascript:;'>" +
+                                "<span class='photo'><img src=" + result[i].user_photo + "></span>" +
+                                "<span class='subject'><span class='from'>" + result[i].name +
+                                "</span><span class='time'>" + result[i].created_at + "</span></span>" +
+                                "<span class='message'>" + "评分：" + result[i].average_grade + "</span></a></li>"
+                        $("#score_notification").append(htmlStr);
+                    }
+                } else {
+                    $("#score_notification").html("<li><p>暂无新评价</p></li>");
+                    $('#score_notification_badge').text(count);
+                }
+                score_notification(data, count);
+                App.fixContentHeight(); // fix content height
+                App.initUniform(); // initialize uniform elements
+            }
+        });
+    });
+    function order_notification(data, count) {
+        if (data != null) {
+            $.extend($.gritter.options, {
+                position: 'top-right'
+            });
+            var title = '';
+            var text = '';
+            if (data.type ==<%= Order::ORDER %>) {
+                title = '您有一个新洗车订单！';
+                text = "客户：" + data.name + "预订了洗车服务，订单号：" + data.order_number + "，详情请查看订单列表！";
+            } else if (data.type ==<%= Order::CANCLE_ORDER %>) {
+                title = '订单被取消了！';
+                text = "客户：" + data.name + "取消了订单:" + data.order_number + "，详情请查看订单列表！";
+            } else {
+                title = '您有一个新服务订单！';
+                text = "客户：" + data.name + "预约了" + data.title + "，订单号：" + data.order_number + "，详情请查看订单列表！";
+            }
+            var unique_id = $.gritter.add({
+                // (string | mandatory) the heading of the notification
+                title: title,
+                // (string | mandatory) the text inside the notification
+                text: text,
+                // (string | optional) the image to display on the left
+                image1: "http://localhost:3000" + data.user_photo,
+                // (bool | optional) if you want it to fade out on its own or just sit there
+                sticky: true,
+                // (int | optional) the time you want it to be alive for before fading out
+                time: data.created_at,
+                // (string | optional) the class name you want to apply to that specific message
+                class_name: 'my-sticky-class'
+            });
+
+            setTimeout(function () {
+                $.gritter.remove(unique_id, {
+                    fade: true,
+                    speed: 'slow'
+                });
+            }, 8000);
+        }
+        $('#order_notification_badge').text(count);
+        if (count > 0) {
+            $('#order_notification_badge').show()
+            $('#order_notification_bar').pulsate({
+                color: "#dd5131",
+                repeat: 5
+            });
+        } else {
+            $('#order_notification_badge').hide()
+        }
+    }
+
+    function score_notification(data, count) {
+        if (data != null) {
+            $.extend($.gritter.options, {
+                position: 'top-right'
+            });
+
+            var unique_id = $.gritter.add({
+                // (string | mandatory) the heading of the notification
+                title: '您有一个新评价',
+                // (string | mandatory) the text inside the notification
+                text: data.name + "评分：" + data.average_grade,
+                // (string | optional) the image to display on the left
+                image1: '<%=Rails.root %>' + data.user_photo,
+                // (bool | optional) if you want it to fade out on its own or just sit there
+                sticky: true,
+                // (int | optional) the time you want it to be alive for before fading out
+                time: data.created_at,
+                // (string | optional) the class name you want to apply to that specific message
+                class_name: 'my-sticky-class'
+            });
+
+            setTimeout(function () {
+                $.gritter.remove(unique_id, {
+                    fade: true,
+                    speed: 'slow'
+                });
+            }, 8000);
+        }
+        $('#score_notification_badge').text(count);
+        if (count > 0) {
+            $('#score_notification_badge').show()
+            $('#score_notification_bar').pulsate({
+                color: "#dd5131",
+                repeat: 5
+            });
+        } else {
+            $('#score_notification_badge').hide()
+        }
+
+    }
+
+    $('#order_notification a').live("click", function () {
+        $('.page-sidebar .ajaxify.order_manager').click()
+    });
+    $('#score_notification a').live("click", function () {
+        $('.page-sidebar .ajaxify.order_manager').click()
+    });
+
+</script>
+<!-- END BODY -->
+</body>
+</html>

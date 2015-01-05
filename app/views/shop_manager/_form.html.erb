@@ -1,0 +1,788 @@
+<div class="row-fluid" style="margin-top: 50px">
+
+<div class="span12">
+
+<div class="portlet box grey" id="form_wizard_1">
+
+<div class="portlet-title">
+
+  <div class="caption">
+
+    <i class="icon-reorder"></i> 店铺修改 - <span class="step-title">步骤 1 of 3</span>
+
+  </div>
+
+  <div class="actions">
+
+    <button type="button" class="btn black" onclick="history.go(-1);"><i class="icon-arrow-left"></i> 返回</button>
+
+  </div>
+
+</div>
+
+<div class="portlet-body form">
+
+<form action="/shop_manager/<%= @shop.id %>" id="submit_form" class="form-horizontal" >
+
+<div class="form-wizard">
+
+<div class="navbar steps">
+
+  <div class="navbar-inner">
+
+    <ul class="row-fluid">
+
+      <li class="span4">
+
+        <a href="#tab1" data-toggle="tab" class="step active">
+
+          <span class="number">1</span>
+
+          <span class="desc"><i class="icon-ok"></i> 店铺基本信息</span>
+
+        </a>
+
+      </li>
+
+      <li class="span4">
+
+        <a href="#tab2" data-toggle="tab" class="step">
+
+          <span class="number">2</span>
+
+          <span class="desc"><i class="icon-ok"></i> 填写地址</span>
+
+        </a>
+
+      </li>
+
+      <li class="span4">
+
+        <a href="#tab3" data-toggle="tab" class="step">
+
+          <span class="number">3</span>
+
+          <span class="desc"><i class="icon-ok"></i> 店铺管理员账号</span>
+
+        </a>
+
+      </li>
+
+    </ul>
+
+  </div>
+
+</div>
+
+<div id="bar" class="progress progress-success progress-striped">
+
+  <div class="bar"></div>
+
+</div>
+
+<div class="tab-content">
+
+  <div class="alert alert-error hide">
+
+    <button class="close" data-dismiss="alert"></button>
+
+    表格中有错误，请仔细检查.
+
+  </div>
+
+  <div class="alert alert-success hide">
+
+    <button class="close" data-dismiss="alert"></button>
+
+    表格验证正确!
+
+  </div>
+
+
+  <div class="tab-pane active" id="tab1">
+
+    <h4 class="block" style="margin-left: 80px;">填写店铺基本信息</h4>
+
+    <div class="control-group">
+
+      <label class="control-label">店铺名<span class="required">*</span></label>
+
+      <div class="controls input-icon">
+
+        <input type="text" class="span6 m-wrap" name="name" value="<%= @shop.name %>" id="name"/>
+
+      </div>
+
+    </div>
+
+    <div class="control-group">
+
+      <label class="control-label">电话<span class="required">*</span></label>
+
+      <div class="controls input-icon">
+
+        <input type="text" class="span2 m-wrap" placeholder="区号" id="telephone_area_code" name="telephone_area_code" value="<%= @shop.telephone_area_code %>"/>
+
+        <span class="help-inline">-</span>
+
+        <input type="text" class="m-wrap span4" placeholder="号码" id="telephone_number" name="telephone_number" value="<%= @shop.telephone_number %>"/>
+
+      </div>
+
+    </div>
+
+
+    <div class="control-group">
+
+      <label class="control-label">介绍<span class="required">*</span></label>
+
+      <div class="controls input-icon">
+
+        <textarea name="description" id="description" rows="5" class="span6 m-wrap"><%= @shop.description %></textarea>
+
+      </div>
+
+    </div>
+
+    <div class="control-group">
+
+      <label class="control-label">店铺形象展示</label>
+
+      <div class="controls input-icon">
+
+        <a href="javascript:;" data-toggle="modal" data-target="#myModal" class="btn green" onclick="show_upload_div('<%=@shop.id%>');"><i class="icon-upload icon-white"></i>上传</a>
+
+        </br>
+
+        <div id="documents_hidden">
+          <% if !@shop.shop_photo.blank? && Document.exists?(@shop.shop_photo) %>
+              <img src="<%= Document.find(@shop.shop_photo).original %>" style="width:120px"></br>
+          <% end %>
+        </div>
+
+        <input type="text" style="display:none;" name="shop_photo" id="shop_photo" value="<%= @shop.shop_photo %>"/>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="tab-pane" id="tab2">
+
+    <h4 class="block" style="margin-left: 80px;">填写店铺地址信息</h4>
+
+    <div class="control-group">
+
+      <label class="control-label">地址<span class="required">*</span></label>
+
+      <div class="controls input-icon">
+
+        <div class="input-box">
+
+          <input type="text" class="span5 m-wrap" placeholder="Search..." name="address" value="<%= @shop.address %>" id="address"/>
+
+          <span id="search_icon" class="btn"><i class="icon-search m-icon-white"></i></span>
+
+          <div id="searchResultPanel" class="span5 m-wrap" style="border:1px solid #C0C0C0;height:auto; display:none;"></div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="control-group">
+
+      <label class="control-label">地图标注<span class="required">*</span></label>
+
+      <div class="controls input-icon">
+
+        <div id="map_container" style="width: 600px;height: 400px">
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="control-group">
+
+      <label class="control-label">经纬度<span class="required">*</span></label>
+
+      <div class="controls input-icon">
+
+        <input type="text" name="longitude" class="span2 m-wrap" placeholder="经度" id="longitude" value="<%= @shop.longitude %>"/>
+
+        <input type="text" name="latitude" class="span2 m-wrap" placeholder="纬度" id="latitude" value="<%= @shop.latitude %>"/>
+
+        <span class="help-inline tooltips" onclick="setCenter();" style="cursor: pointer" data-original-title="在地图上定位"><i class="icon-map-marker"></i></span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="tab-pane" id="tab3">
+
+    <h4 class="block" style="margin-left: 80px;">修改管理员账号</h4>
+
+    <div class="control-group">
+
+      <label class="control-label">账号<span class="required">*</span></label>
+
+      <div class="controls input-icon">
+
+        <input class="m-wrap placeholder-no-fix" type="text" id="email" placeholder="email" name="email" value="<%= (@shop.employee.blank?) ? nil : @shop.employee.email %>"/>
+
+      </div>
+
+    </div>
+
+    <div class="control-group">
+
+      <label class="control-label">修改密码</i><span class="required"></span></label>
+
+      <div class="controls input-icon">
+
+        <input class="m-wrap placeholder-no-fix" type="password" id="register_password" placeholder="Password" name="password" value="<%= (@shop.employee.blank?) ? 123456 : nil %>"/>
+
+      </div>
+
+    </div>
+
+    <div class="control-group">
+
+      <label class="control-label">确认修改<span class="required"></span></label>
+
+      <div class="controls input-icon">
+
+        <input class="m-wrap placeholder-no-fix" type="password" placeholder="Re-type Your Password" name="rpassword" value="<%= (@shop.employee.blank?) ? 123456 : nil %>"/>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="form-actions clearfix">
+
+  <a href="javascript:;" class="btn button-previous">
+
+    <i class="m-icon-swapleft"></i> 返回
+
+  </a>
+
+  <a href="javascript:;" class="btn blue button-next">
+
+    下一步 <i class="m-icon-swapright m-icon-white"></i>
+
+  </a>
+
+  <a href="javascript:;" class="btn black button-submit">
+
+    保存 <i class="m-icon-swapright m-icon-white"></i>
+
+  </a>
+
+</div>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+
+</div>
+
+<script>
+
+    if (jQuery().bootstrapWizard) {
+        var form = $('#submit_form');
+        var error = $('.alert-error', form);
+
+        form.validate({
+            doNotHideMessage: true, //this option enables to show the error/success messages on tab switch.
+            errorElement: 'span', //default input error message container
+            errorClass: 'input-error tooltips', // default input error message class
+            validClass: 'input-success tooltips',
+            focusInvalid: false, // do not focus the last invalid input
+            ignore: ".ignore",
+            rules: {
+                name: {
+                    required: true,
+                    remote: {
+                        url: "/shops/shop_name",
+                        type: "post",
+                        dataType: "json",
+                        data: {
+                            shop_name: function () {
+                                return $("#name").val();
+                            },
+                            id: "<%= (@shop.blank?)?nil:@shop.id%>"
+                        }
+                    }
+                },
+                telephone_area_code: {
+                    number: true,
+                    required: true,
+                    maxlength: 4,
+                    minlength: 3
+                },
+                telephone_number: {
+                    number: true,
+                    required: true
+                },
+                description: {
+                    required: true
+                },
+                address: {
+                    required: true
+                },
+                longitude: {
+                    required: true
+                },
+                latitude: {
+                    required: true
+                },
+                email: {
+                    required: true,
+                    email: true,
+                    remote: {
+                        url: "/shops/email",
+                        type: "post",
+                        dataType: "json",
+                        data: {
+                            email: function () {
+                                return $('#email').val();
+                            },
+                            employee_id: "<%= (@shop.employee.blank?)?nil:@shop.employee.id %>"
+                        }
+                    }
+
+                },
+                rpassword: {
+                    equalTo: "#register_password"
+                }
+            },
+
+            messages: {
+                shop_photo: {
+                    remote: "请上传店铺形象展示图！"
+                },
+                email: {
+                    remote: "该用户名已存在！"
+                },
+                name: {
+                    remote: "该店铺已存在！"
+                }
+            },
+
+
+            invalidHandler: function (event, validator) { //display error alert on form submit
+                error.show();
+                App.scrollTo(error, -200);
+            },
+
+            highlight: function (element) { // hightlight error inputs
+                $(element)
+                        .closest('.help-inline').removeClass('ok'); // display OK icon
+                $(element)
+                        .closest('.control-group').removeClass('success').addClass('error'); // set error class to the control group
+            },
+
+            unhighlight: function (element) { // revert the change dony by hightlight
+                $(element)
+                        .closest('.control-group').removeClass('error'); // set error class to the control group
+            },
+
+            success: function (label, element) {
+                //自定义成功提示
+                label.closest('.control-group').removeClass('error').addClass('success'); // set success class to the control group
+                label.html("<i class='help-inline ok' style='margin-top: 0;'></i>");
+                if (($(element)).attr("name") == "shop_photo") {
+                    //do nothing
+                } else {
+                    label.insertAfter(element);
+                }
+            },
+
+            error: function (label, element) {
+                //自定义成功提示
+                label.closest('.control-group').removeClass('success').addClass('error'); // set success class to the control group
+                label.attr("data-original-title", label.text());
+                label.html("<i class='icon-exclamation-sign'></i>");
+                if (($(element)).attr("name") == "shop_photo") {
+                    //do nothing
+                } else {
+                    label.insertAfter(element);
+                }
+            },
+
+            update: function () {
+                App.updateTooltips();
+            },
+
+            submitHandler: function (form) {
+                error.hide();
+                //add here some ajax code to submit your form or just call form.submit() if you want to submit the form without ajax
+            }
+        })
+        ;
+
+        // default form wizard
+        $('#form_wizard_1').bootstrapWizard({
+            'nextSelector': '.button-next',
+            'previousSelector': '.button-previous',
+            onTabClick: function (tab, navigation, index, clickedIndex) {
+                if (index < clickedIndex) {
+                    for (; index < clickedIndex; index++) {
+                        if ($('#form_wizard_1').bootstrapWizard('next'))
+                            continue;
+                        else
+                            break;
+                    }
+                }
+                if (index > clickedIndex) {
+                    for (; index > clickedIndex; index--) {
+                        if ($('#form_wizard_1').bootstrapWizard('previous'))
+                            continue;
+                        else
+                            break;
+                    }
+                }
+                return false;
+//                return $.fn.bootstrapWizard.onNext(tab, navigation, index);
+            },
+            onNext: function (tab, navigation, index) {
+                error.hide();
+
+                if (form.valid() == false) {
+                    return false;
+                }
+
+                var total = navigation.find('li').length;
+                var current = index + 1;
+                // set wizard title
+                $('.step-title', $('#form_wizard_1')).text('步骤 ' + (index + 1) + ' of ' + total);
+                // set done steps
+                jQuery('li', $('#form_wizard_1')).removeClass("done");
+                var li_list = navigation.find('li');
+                for (var i = 0; i < index; i++) {
+                    jQuery(li_list[i]).addClass("done");
+                }
+
+                if (current == 1) {
+                    $('#form_wizard_1').find('.button-previous').hide();
+                } else {
+                    $('#form_wizard_1').find('.button-previous').show();
+                }
+
+                if (current >= total) {
+                    $('#form_wizard_1').find('.button-next').hide();
+                    $('#form_wizard_1').find('.button-submit').show();
+                } else {
+                    $('#form_wizard_1').find('.button-next').show();
+                    $('#form_wizard_1').find('.button-submit').hide();
+                }
+                App.scrollTo($('#form_wizard_1'));
+            },
+            onPrevious: function (tab, navigation, index) {
+                error.hide();
+
+                var total = navigation.find('li').length;
+                var current = index + 1;
+                // set wizard title
+                $('.step-title', $('#form_wizard_1')).text('Step ' + (index + 1) + ' of ' + total);
+                // set done steps
+                jQuery('li', $('#form_wizard_1')).removeClass("done");
+                var li_list = navigation.find('li');
+                for (var i = 0; i < index; i++) {
+                    jQuery(li_list[i]).addClass("done");
+                }
+
+                if (current == 1) {
+                    $('#form_wizard_1').find('.button-previous').hide();
+                } else {
+                    $('#form_wizard_1').find('.button-previous').show();
+                }
+
+                if (current >= total) {
+                    $('#form_wizard_1').find('.button-next').hide();
+                    $('#form_wizard_1').find('.button-submit').show();
+                } else {
+                    $('#form_wizard_1').find('.button-next').show();
+                    $('#form_wizard_1').find('.button-submit').hide();
+                }
+
+                App.scrollTo($('#form_wizard_1'));
+            },
+            onTabShow: function (tab, navigation, index) {
+                var total = navigation.find('li').length;
+                var current = index + 1;
+                var $percent = (current / total) * 100;
+                $('#form_wizard_1').find('.bar').css({
+                    width: $percent + '%'
+                });
+                $(".tab-content").find(".tab-pane").find("input, select, textarea").addClass("ignore");
+                $(".tab-content").find(".tab-pane:eq(" + index + ")").find("input, select, textarea").removeClass("ignore");
+            },
+            onInit: function (tab, navigation, index) {
+                $(".tab-content").find(".tab-pane").find("input, select, textarea").addClass("ignore");
+                $(".tab-content").find(".tab-pane:eq(" + index + ")").find("input, select, textarea").removeClass("ignore");
+            }
+        });
+
+        $('#form_wizard_1').find('.button-previous').hide();
+        $('#form_wizard_1 .button-submit').click(function () {
+            if (form.valid()) {
+                jQuery.ajax({
+                    type: 'PATCH',
+                    url: form.attr("action"),
+                    data: form.serialize(),
+                    dataType: 'script'
+                });
+            }
+
+        }).hide();
+
+    }
+
+
+    function show_upload_div(shop_id) {
+        var document_id = $("#shop_photo").val();
+        var path = "/shop_manager/show_upload_div";
+        if (document_id && document_id != "") {
+            path = path + "?document_id=" + document_id;
+        }
+        $.ajax({
+            async: false,
+            type: "GET",
+            url: path,
+            dataType: 'script'
+        });
+
+    }
+
+    //address
+    var address = $("#address").val();
+    <!--百度地图API功能-->
+    <!--创建Map实例-->
+    var map = new BMap.Map("map_container");
+
+    var top_left_control = new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT});// 左上角，添加比例尺
+
+    var top_left_navigation = new BMap.NavigationControl();  //左上角，添加默认缩放平移控件
+
+    <!--添加地图类型控件-->
+    map.addControl(new BMap.MapTypeControl());
+
+    map.addControl(top_left_control);
+
+    map.addControl(top_left_navigation);
+
+    <!--初始化地图,用城市名设置地图中心点-->
+
+
+    // 百度地图API功能
+    function G(id) {
+        return document.getElementById(id);
+    }
+//
+    var ac = new BMap.Autocomplete(     //建立一个自动完成的对象
+            {"input": "address", "location": map
+            });
+    ac.setInputValue(address);
+
+    ac.addEventListener("onhighlight", function (e) {
+        //鼠标放在下拉列表上的事件
+        alert("onhighlight");
+        var str = "";
+        var _value = e.fromitem.value;
+        var value = "";
+        if (e.fromitem.index > -1) {
+            value = _value.province + _value.city + _value.district + _value.street + _value.business;
+        }
+        str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
+
+        value = "";
+        if (e.toitem.index > -1) {
+            _value = e.toitem.value;
+            value = _value.province + _value.city + _value.district + _value.street + _value.business;
+        }
+        str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
+        G("searchResultPanel").innerHTML = str;
+    });
+
+    var myValue;
+    ac.addEventListener("onconfirm", function (e) {    //鼠标点击下拉列表后的事件
+        alert("onconfirm");
+        var _value = e.item.value;
+        myValue = _value.province + _value.city + _value.district + _value.street + _value.business;
+        G("searchResultPanel").innerHTML = "onconfirm<br />index = " + e.item.index + "<br />myValue = " + myValue;
+        setPlace(myValue);
+    });
+
+    function setPlace(myValue) {
+        function myFun() {
+            var pp = local.getResults().getPoi(0).point;    //获取第一个智能搜索的结果
+            map.centerAndZoom(pp, 16);
+        }
+
+        var local = new BMap.LocalSearch(map, { //智能搜索
+            onSearchComplete: myFun
+        });
+        local.search(myValue);
+    }
+
+    $("#search_icon").on('click', function (e) {
+        e.preventDefault();
+        //改变地图
+        var address = $("#address").val();
+        if (address != null && address != "") {
+            setPlace(address);
+        }
+    });
+
+    function showInfo(e) {
+        if (e.overlay == null) {
+            $("#longitude").val(e.point.lng);
+            $("#latitude").val(e.point.lat);
+            //定位
+            map.clearOverlays();
+            var new_point = new BMap.Point(e.point.lng, e.point.lat);
+            var marker = new BMap.Marker(new_point);  // 创建标注
+
+            var opts = {
+                width: 150,     // 信息窗口宽度
+                height: 60,     // 信息窗口高度
+                title: $("#name").val(), // 信息窗口标题
+                enableMessage: false//设置允许信息窗发送短息
+            }
+            var infoWindow = new BMap.InfoWindow("地址：" + $("#address").val(), opts);  // 创建信息窗口对象
+            marker.addEventListener("click", function () {
+                map.openInfoWindow(infoWindow, new_point); //开启信息窗口
+            });
+
+            map.addOverlay(marker);              // 将标注添加到地图中
+            marker.enableDragging();
+            marker.addEventListener("dragend", function (e) {
+                $("#longitude").val(e.point.lng);
+                $("#latitude").val(e.point.lat);
+            })
+
+            marker.addEventListener("dragging", function (e) {
+                $("#longitude").val(e.point.lng);
+                $("#latitude").val(e.point.lat);
+            })
+
+        }
+    }
+
+    map.addEventListener("click", showInfo);
+
+    map.enableAutoResize();
+
+    map.enableScrollWheelZoom();
+
+    map.centerAndZoom("成都", 16);
+
+    function adjustCenter() {
+        //经度
+        var longitude = $("#longitude").val();
+        //纬度
+        var latitude = $("#latitude").val();
+
+        if (longitude != null && longitude != "" && latitude != null && latitude != "") {
+            //定位
+            map.clearOverlays();
+            var new_point = new BMap.Point(longitude, latitude);
+            var marker = new BMap.Marker(new_point);  // 创建标注
+            var opts = {
+                width: 150,     // 信息窗口宽度
+                height: 60,     // 信息窗口高度
+                title: $("#name").val(), // 信息窗口标题
+                enableMessage: false//设置允许信息窗发送短息
+            }
+            var infoWindow = new BMap.InfoWindow("地址：" + $("#address").val(), opts);  // 创建信息窗口对象
+            marker.addEventListener("click", function () {
+                map.openInfoWindow(infoWindow, new_point); //开启信息窗口
+            });
+            map.addOverlay(marker);              // 将标注添加到地图中
+
+            marker.enableDragging();
+
+            marker.addEventListener("dragend", function (e) {
+                $("#longitude").val(e.point.lng);
+                $("#latitude").val(e.point.lat);
+            })
+
+            marker.addEventListener("dragging", function (e) {
+                $("#longitude").val(e.point.lng);
+                $("#latitude").val(e.point.lat);
+            })
+
+            map.panTo(new_point);
+        }
+        if ($("#map_container").is(":visible")) {
+            map.removeEventListener("tilesloaded", adjustCenter);
+        }
+
+    }
+
+    map.addEventListener("tilesloaded", adjustCenter);
+
+
+    function setCenter() {
+        //经度
+        var longitude = $("#longitude").val();
+        //纬度
+        var latitude = $("#latitude").val();
+
+        if (longitude != null && longitude != "" && latitude != null && latitude != "") {
+            //定位
+            map.clearOverlays();
+            var new_point = new BMap.Point(longitude, latitude);
+            var marker = new BMap.Marker(new_point);  // 创建标注
+            var opts = {
+                width: 150,     // 信息窗口宽度
+                height: 60,     // 信息窗口高度
+                title: $("#name").val(), // 信息窗口标题
+                enableMessage: false//设置允许信息窗发送短息
+            }
+            var infoWindow = new BMap.InfoWindow("地址：" + $("#address").val(), opts);  // 创建信息窗口对象
+            marker.addEventListener("click", function () {
+                map.openInfoWindow(infoWindow, new_point); //开启信息窗口
+            });
+            map.addOverlay(marker);              // 将标注添加到地图中
+
+            marker.enableDragging();
+
+            marker.addEventListener("dragend", function (e) {
+                $("#longitude").val(e.point.lng);
+                $("#latitude").val(e.point.lat);
+            })
+
+            marker.addEventListener("dragging", function (e) {
+                $("#longitude").val(e.point.lng);
+                $("#latitude").val(e.point.lat);
+            })
+
+            map.panTo(new_point);
+        }
+    }
+    App.updateChoosenSelect();
+</script>
+

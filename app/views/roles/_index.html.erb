@@ -1,0 +1,267 @@
+<div class="span12 responsive" style="margin-top: 50px" data-tablet="span12 fix-offset" data-desktop="span12">
+
+  <!-- BEGIN EXAMPLE TABLE PORTLET-->
+
+  <div class="portlet box grey">
+
+    <div class="portlet-title">
+
+      <div class="caption"><i class="icon-sitemap"></i>权限列表</div>
+
+      <div class="tools">
+
+        <a href="javascript:;" class="collapse"></a>
+
+        <a href="javascript:;" class="remove"></a>
+
+      </div>
+
+      <div class="actions">
+
+        <button id="role_list_new" class="btn black">
+
+          <i class="icon-plus"></i> 添加
+
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="portlet-body">
+
+
+      <table class="table table-striped table-bordered table-hover table-full-width" id="role_list">
+
+        <thead>
+
+        <tr>
+
+          <th>ID</th>
+
+          <th>权限名</th>
+
+          <th class="hidden-480">描述</th>
+
+          <th class="hidden-480">修改</th>
+
+          <th class="hidden-480">删除</th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+        <% if !@roles.blank? %>
+            <% @roles.each do |l| %>
+                <tr class="odd gradeX">
+
+                  <td>
+                    <%= l[:id] %>
+                  </td>
+
+                  <td>
+                    <%= l[:name] %>
+                  </td>
+
+                  <td class="hidden-480"><%= ((l.duty.blank?) ? nil : "#{l.duty}") %></td>
+
+                  <td><a class="edit" href="javascript:;">修改</a></td>
+
+                  <td>
+                    <a class="delete" href="javascript:;" data-toggle="modal"
+                       data-target="#confirm-modal" data-backdrop="static"
+                       data-keyboard="true"
+                       onclick="role_list_show_confirm_modal(this);">删除</a></td>
+
+                </tr>
+
+            <% end %>
+        <% end %>
+        </tbody>
+      </table>
+
+
+    </div>
+
+  </div>
+
+  <!-- END EXAMPLE TABLE PORTLET-->
+
+</div>
+
+<script>
+
+    function restoreRow(oTable, nRow) {
+        var aData = oTable.fnGetData(nRow);
+        var jqTds = $('>td', nRow);
+
+        for (var i = 0, iLen = jqTds.length; i < iLen; i++) {
+            oTable.fnUpdate(aData[i], nRow, i, false);
+        }
+
+        oTable.fnDraw();
+    }
+
+    function editRow(oTable, nRow) {
+        var aData = oTable.fnGetData(nRow);
+        var jqTds = $('>td', nRow);
+        jqTds[0].innerHTML = "" + aData[0];
+        jqTds[1].innerHTML = '<input type="text" class="m-wrap small" value="' + aData[1] + '">';
+        jqTds[2].innerHTML = '<input type="text" class="m-wrap small" value="' + aData[2] + '">';
+        jqTds[3].innerHTML = '<a class="edit" href="">保存</a>';
+        jqTds[4].innerHTML = '<a class="cancel" href="">取消</a>';
+    }
+
+    function saveRow(oTable, nRow) {
+        var aData = oTable.fnGetData(nRow);
+        var jqInputs = $('input', nRow);
+        var type;
+        var url = "/roles";
+        if (aData[0] != "") {
+            type = "PUT";
+            url = url + "/" + aData[0];
+        } else {
+            type = "POST";
+        }
+        $.ajax({
+            async: false,
+            type: type,
+            url: url,
+            dataType: "json",
+            data: {
+                name: jqInputs[0].value,
+                duty: jqInputs[1].value
+            },
+            success: function (result, textStatus, jqXHR) {
+                if (result != false) {
+                    oTable.fnUpdate(result.id, nRow, 0, false);
+                    oTable.fnUpdate(result.name, nRow, 1, false);
+                    oTable.fnUpdate(result.duty, nRow, 2, false);
+                    oTable.fnUpdate('<a class="edit" href="">修改</a>', nRow, 3, false);
+                    oTable.fnUpdate("<a class='delete' href='javascript:;' data-toggle='modal' data-target='#confirm-modal' data-backdrop='static' data-keyboard='true' onclick='role_list_show_confirm_modal(this);'>删除</a>", nRow, 4, false);
+                    oTable.fnDraw();
+                } else {
+                    restoreRow(oTable, nRow);
+                    $('#messages').html('<%= escape_javascript(render('/layouts/messages')) %>');
+                }
+                App.fixContentHeight(); // fix content height
+                App.initUniform(); // initialize uniform elements
+            }
+        });
+    }
+
+
+    if ($('#role_list').length) {
+        role_list_table = $('#role_list').dataTable({
+            "aLengthMenu": [
+                [5, 15, 20, -1],
+                ["5", "15", "20", "所有"] // change per page values here
+            ],
+            // set the initial value
+            "iDisplayLength": 20,
+            "sDom": "<'row-fluid'<'span6'l><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
+            "sPaginationType": "bootstrap",
+            "oLanguage": {
+                "sLengthMenu": "_MENU_ per page",
+                "sProcessing": "正在加载中......",
+                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
+                "sZeroRecords": "没有符合条件的数据！",
+                "sEmptyTable": "表中无数据存在！",
+                "sInfoFiltered": "(_MAX_)",
+                "sInfoEmpty": "显示 0 至 0 共 0 项",
+                "sSearch": "搜索：",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "末页"
+                }
+            }
+        });
+
+
+        jQuery('#role_list_wrapper .dataTables_filter input').addClass("m-wrap small"); // modify table search input
+        jQuery('#role_list_wrapper .dataTables_length select').addClass("m-wrap small"); // modify table per page dropdown
+        jQuery('#role_list_wrapper .dataTables_length select').select2(); // initialzie select2 dropdown
+
+        var nEditing = null;
+
+        $('#role_list_new').click(function (e) {
+            e.preventDefault();
+            var aiNew = role_list_table.fnAddData(['', '', '',
+                '<a class="edit" href="">修改</a>', '<a class="cancel" data-mode="new" href="">取消</a>'
+            ]);
+            var nRow = role_list_table.fnGetNodes(aiNew[0]);
+            editRow(role_list_table, nRow);
+            nEditing = nRow;
+        });
+
+        $('#role_list a.cancel').die('click');
+        $('#role_list a.edit').die('click');
+
+        $('#role_list a.cancel').live('click', function (e) {
+            e.preventDefault();
+            if ($(this).attr("data-mode") == "new") {
+                var nRow = $(this).parents('tr')[0];
+                role_list_table.fnDeleteRow(nRow);
+            } else {
+                restoreRow(role_list_table, nEditing);
+                nEditing = null;
+            }
+        });
+
+        $('#role_list a.edit').live('click', function (e) {
+            e.preventDefault();
+
+            /* Get the row as a parent of the link that was clicked on */
+            var nRow = $(this).parents('tr')[0];
+
+            if (nEditing !== null && nEditing != nRow) {
+                /* Currently editing - but not this row - restore the old before continuing to edit mode */
+                restoreRow(role_list_table, nEditing);
+                editRow(role_list_table, nRow);
+                nEditing = nRow;
+            } else if (nEditing == nRow && this.innerHTML == "保存") {
+                /* Editing this row and want to save it */
+                saveRow(role_list_table, nEditing);
+                nEditing = null;
+            } else {
+                /* No edit in progress - let's start one */
+                editRow(role_list_table, nRow);
+                nEditing = nRow;
+            }
+        });
+
+    }
+
+    function role_list_show_confirm_modal(element) {
+        var nRow = $(element).parents('tr')[0];
+        var aData = role_list_table.fnGetData(nRow);
+        var path = "/roles/" + aData[0];
+        var question = "确认删除：" + aData[1];
+        $('#confirm-modal #question').text(question);
+        $('#confirm-modal #delete').one("click", function () {
+
+            $.ajax({
+                async: false,
+                type: "DELETE",
+                url: path,
+                success: function (result, textStatus, jqXHR) {
+                    if (result == true) {
+                        var nRow = $(element).parents('tr')[0];
+                        role_list_table.fnDeleteRow(nRow);
+                    } else {
+                        $('#messages').html('<%= escape_javascript(render('/layouts/messages')) %>');
+                    }
+                    App.fixContentHeight(); // fix content height
+                    App.initUniform(); // initialize uniform elements
+                },
+                dataType: 'json'
+            });
+        });
+    }
+
+
+</script>

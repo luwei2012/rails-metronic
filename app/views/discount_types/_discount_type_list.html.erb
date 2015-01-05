@@ -1,0 +1,284 @@
+<div class="span12 responsive" style="margin-top: 50px" data-tablet="span12 fix-offset" data-desktop="span12">
+
+  <!-- BEGIN EXAMPLE TABLE PORTLET-->
+
+  <div class="portlet box grey">
+
+    <div class="portlet-title">
+
+      <div class="caption">
+        <i class="icon-bookmark-empty"></i><%= (@discount_type.blank?) ? '服务信息' : @discount_type.name %>子类型列表
+      </div>
+
+      <div class="tools">
+
+        <a href="javascript:;" class="collapse"></a>
+
+        <a href="javascript:;" class="remove"></a>
+
+      </div>
+
+      <div class="actions">
+
+        <button id="discount_type_list_list_new" class="btn black">
+
+          <i class="icon-plus"></i> 添加
+
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="portlet-body">
+
+
+      <table class="table table-striped table-bordered table-hover table-full-width" id="discount_type_list_list">
+
+        <thead>
+
+        <tr>
+
+          <th>ID</th>
+
+          <th>服务信息子类型</th>
+
+          <th class="hidden-480">父类型</th>
+
+          <th class="hidden-480">修改</th>
+
+          <th class="hidden-480">删除</th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+        <% if !@discount_types_list.blank? %>
+            <% @discount_types_list.each do |l| %>
+                <tr class="odd gradeX">
+
+                  <td>
+                    <%= l[:id] %>
+                  </td>
+
+                  <td>
+                    <%= l[:name] %>
+                  </td>
+
+                  <td class="hidden-480">
+                    <%= @discount_type.name %>
+                  </td>
+
+                  <!--<td><span class="label label-success">Approved</span></td>-->
+                  <td><a class="edit" href="javascript:;">修改</a></td>
+
+                  <td>
+                    <a class="delete" href="javascript:;" data-toggle="modal"
+                       data-target="#confirm-modal" data-backdrop="static"
+                       data-keyboard="true"
+                       onclick="discount_type_list_list_show_confirm_modal(this);">删除</a></td>
+
+                </tr>
+
+            <% end %>
+        <% end %>
+        </tbody>
+      </table>
+
+
+    </div>
+
+  </div>
+
+  <!-- END EXAMPLE TABLE PORTLET-->
+
+</div>
+
+
+<script>
+    discount_type_id = <%=(@discount_type.blank?)?0: @discount_type.id %>;
+
+    if ($('#discount_type_list_list').length) {
+        discount_type_list_list_table = $('#discount_type_list_list').dataTable({
+            "aLengthMenu": [
+                [5, 15, 20, -1],
+                ["5", "15", "20", "所有"] // change per page values here
+            ],
+            // set the initial value
+            "iDisplayLength": 20,
+            "sDom": "<'row-fluid'<'span6'l><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
+            "sPaginationType": "bootstrap",
+            "oLanguage": {
+                "sLengthMenu": "_MENU_ per page",
+                "sProcessing": "正在加载中......",
+                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
+                "sZeroRecords": "没有符合条件的数据！",
+                "sEmptyTable": "表中无数据存在！",
+                "sInfoFiltered": "(_MAX_)",
+                "sInfoEmpty": "显示 0 至 0 共 0 项",
+                "sSearch": "搜索：",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "末页"
+                }
+            },
+            "aoColumnDefs": [
+                { "bVisible": false, "aTargets": [ 0 ] },
+                {
+                    'bSortable': false,
+                    'aTargets': [3, 4]
+                }
+            ]
+        });
+
+
+        jQuery('#discount_type_list_list_wrapper .dataTables_filter input').addClass("m-wrap small"); // modify table search input
+        jQuery('#discount_type_list_list_wrapper .dataTables_length select').addClass("m-wrap small"); // modify table per page dropdown
+        jQuery('#discount_type_list_list_wrapper .dataTables_length select').select2(); // initialzie select2 dropdown
+
+        $('#discount_type_list_list a.cancel').die('click');
+        $('#discount_type_list_list a.edit').die('click');
+        var nEditing = null;
+
+        $('#discount_type_list_list_new').click(function (e) {
+            e.preventDefault();
+            if (discount_type_id == 0) {
+                alert("请先选中父类型，点击父类型表中的子类型数!");
+            } else {
+                var aiNew = discount_type_list_list_table.fnAddData(['', '', '<%=(@discount_type.blank?)?'': @discount_type.name %>',
+                    '<a class="edit" href="">修改</a>', '<a class="cancel" data-mode="new" href="">取消</a>'
+                ]);
+                var nRow = discount_type_list_list_table.fnGetNodes(aiNew[0]);
+                discount_type_list_editRow(discount_type_list_list_table, nRow);
+                nEditing = nRow;
+            }
+
+        });
+
+
+        $('#discount_type_list_list a.cancel').live('click', function (e) {
+            e.preventDefault();
+            if ($(this).attr("data-mode") == "new") {
+                var nRow = $(this).parents('tr')[0];
+                discount_type_list_list_table.fnDeleteRow(nRow);
+            } else {
+                discount_type_list_restoreRow(discount_type_list_list_table, nEditing);
+                nEditing = null;
+            }
+        });
+
+        $('#discount_type_list_list a.edit').live('click', function (e) {
+            e.preventDefault();
+
+            /* Get the row as a parent of the link that was clicked on */
+            var nRow = $(this).parents('tr')[0];
+
+            if (nEditing !== null && nEditing != nRow) {
+                /* Currently editing - but not this row - restore the old before continuing to edit mode */
+
+                discount_type_list_restoreRow(discount_type_list_list_table, nEditing);
+                discount_type_list_editRow(discount_type_list_list_table, nRow);
+                nEditing = nRow;
+            } else if (nEditing == nRow && this.innerHTML == "保存") {
+                /* Editing this row and want to save it */
+                discount_type_list_saveRow(discount_type_list_list_table, nEditing);
+                nEditing = null;
+            } else {
+                /* No edit in progress - let's start one */
+
+                discount_type_list_editRow(discount_type_list_list_table, nRow);
+                nEditing = nRow;
+            }
+        });
+
+        function discount_type_list_list_show_confirm_modal(element) {
+            var nRow = $(element).parents('tr')[0];
+            var aData = discount_type_list_list_table.fnGetData(nRow);
+            var path = "/discount_types/" + aData[0];
+            var question = "确认删除：" + aData[1];
+            $('#confirm-modal #question').text(question);
+            $('#confirm-modal #delete').one("click", function () {
+
+                $.ajax({
+                    async: false,
+                    type: "DELETE",
+                    url: path,
+                    success: function (result, textStatus, jqXHR) {
+                        if (result == true) {
+                            var nRow = $(element).parents('tr')[0];
+                            discount_type_list_list_table.fnDeleteRow(nRow);
+                        } else {
+                            $('#messages').html('<%= escape_javascript(render('/layouts/messages')) %>');
+                        }
+                        App.fixContentHeight(); // fix content height
+                        App.initUniform(); // initialize uniform elements
+                    },
+                    dataType: 'json'
+                });
+            });
+        }
+
+        function discount_type_list_restoreRow(oTable, nRow) {
+            var aData = oTable.fnGetData(nRow);
+            for (var i = 0, iLen = aData.length; i < iLen; i++) {
+                var bVis = oTable.fnSettings().aoColumns[i].bVisible;
+                if (bVis)
+                    oTable.fnUpdate(aData[i], nRow, i, false);
+            }
+
+            oTable.fnDraw();
+        }
+
+        function discount_type_list_editRow(oTable, nRow) {
+            var aData = oTable.fnGetData(nRow);
+            var jqTds = $('>td', nRow);
+            jqTds[0].innerHTML = '<input type="text" class="m-wrap small" value="' + aData[1] + '">';
+            jqTds[1].innerHTML = "" + aData[2];
+            jqTds[2].innerHTML = '<a class="edit" href="">保存</a>';
+            jqTds[3].innerHTML = '<a class="cancel" href="">取消</a>';
+        }
+
+        function discount_type_list_saveRow(oTable, nRow) {
+            var aData = oTable.fnGetData(nRow);
+            var jqInputs = $('input', nRow);
+            var type;
+            var url = "/discount_types";
+            if (aData[0] != "") {
+                type = "PUT";
+                url = url + "/" + aData[0];
+            } else {
+                type = "POST";
+            }
+            $.ajax({
+                async: false,
+                type: type,
+                url: url,
+                dataType: "json",
+                data: {
+                    name: jqInputs[0].value,
+                    parent: discount_type_id
+                },
+                success: function (result, textStatus, jqXHR) {
+                    if (result != false) {
+                        oTable.fnUpdate(result.id, nRow, 0, false);
+                        oTable.fnUpdate(result.name, nRow, 1, false);
+                        oTable.fnUpdate(result.parent, nRow, 2, false);
+                        oTable.fnUpdate('<a class="edit" href="">修改</a>', nRow, 3, false);
+                        oTable.fnUpdate("<a class='delete' href='javascript:;' data-toggle='modal' data-target='#confirm-modal' data-backdrop='static' data-keyboard='true' onclick='discount_type_list_list_show_confirm_modal(this);'>删除</a>", nRow, 4, false);
+                        oTable.fnDraw();
+                    } else {
+                        discount_type_list_restoreRow(oTable, nRow);
+                        $('#messages').html('<%= escape_javascript(render('/layouts/messages')) %>');
+                    }
+                    App.fixContentHeight(); // fix content height
+                    App.initUniform(); // initialize uniform elements
+                }
+            });
+        }
+    }
+
+</script>

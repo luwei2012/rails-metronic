@@ -1,0 +1,349 @@
+<form action="/discount_manager" id="form_sample_1" class="form-horizontal" autocomplete="off" method="post">
+
+  <%= render 'form' %>
+
+</form>
+
+<div class="row-fluid" style="margin-left: 120px">
+
+  <div class="control-group">
+    <form id="fileupload" action="/documents/image_upload" method="POST" enctype="multipart/form-data">
+      <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
+
+      <div class="row-fluid fileupload-buttonbar">
+        <div>
+          <!-- The fileinput-button span is used to style the file input field as button -->
+        <span class="btn green fileinput-button">
+          <i class="icon-plus icon-white"></i>
+          <span>添加图片</span>
+          <input type="file" name="files[]" multiple>
+        </span>
+          <button type="button" class="btn red delete">
+            <i class="icon-trash icon-white"></i>
+            <span>删除</span>
+          </button>
+          <input type="checkbox" class="toggle fileupload-toggle-checkbox">
+          <span>您的图片尺寸和清晰度会直接影响您的店铺展示效果，建议尺寸为：宽*高=1080*450。图片大小不超过1MB</span>
+        </div>
+        <div class="span5 fileupload-progress fade">
+          <!-- The global progress bar -->
+          <div class="progress progress-success progress-striped active fade" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+            <div class="bar" style="width:0%;"></div>
+          </div>
+          <!-- The extended global progress information -->
+
+          <div class="progress-extended">&nbsp;</div>
+        </div>
+      </div>
+      <!-- The loading indicator is shown during image processing -->
+      <div class="fileupload-loading"></div>
+      <br>
+      <!-- The table listing the files available for upload/download -->
+      <table class="table table-striped" role="presentation">
+        <tbody class="files" data-toggle="modal-gallery" data-target="#modal-gallery"></tbody>
+      </table>
+
+    </form>
+
+
+  </div>
+
+  <div class="control-group">
+
+    <!-- The template to display files available for upload -->
+    <script id="template-upload" type="text/x-tmpl">
+      {% for (var i=0, file; file=o.files[i]; i++) { %}
+      <tr class="template-upload fade">
+        <td class="preview"><span class="fade"></span></td>
+        <td class="name"><span>{%=file.name%}</span></td>
+        <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
+        {% if (file.error) { %}
+        <td class="error" colspan="2"><span class="label label-important">{%=locale.fileupload.error%}</span>
+          {%=locale.fileupload.errors[file.error] || file.error%}
+        </td>
+        {% } else if (o.files.valid && !i) { %}
+        <td>
+          <div class="progress progress-success progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="bar" style="width:0%;"></div>
+          </div>
+        </td>
+        <td class="start">{% if (!o.options.autoUpload) { %}
+          <button class="btn blue">
+            <i class="icon-upload icon-white"></i>
+            <span>{%=locale.fileupload.start%}</span>
+          </button>
+          {% } %}
+        </td>
+        {% } else { %}
+        <td colspan="2"></td>
+        {% } %}
+        <td class="cancel">{% if (!i) { %}
+          <button class="btn red">
+            <i class="icon-ban-circle icon-white"></i>
+            <span>{%=locale.fileupload.cancel%}</span>
+          </button>
+          {% } %}
+        </td>
+      </tr>
+      {% } %}
+
+
+
+
+
+
+
+
+
+
+    </script>
+    <!-- The template to display files available for download -->
+    <script id="template-download" type="text/x-tmpl">
+      {% for (var i=0, file; file=o.files[i]; i++) { %}
+      <tr class="template-download fade">
+        {% if (file.error) { %}
+        <td></td>
+        <td class="name"><span>{%=file.name%}</span></td>
+        <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
+        <td class="error" colspan="2"><span class="label label-important">{%=locale.fileupload.error%}</span>
+          {%=locale.fileupload.errors[file.error] || file.error%}
+        </td>
+        {% } else { %}
+        <td class="preview">{% if (file.thumbnail_url) { %}
+          <a href="{%=file.url%}" title="{%=file.name%}" rel="gallery" download="{%=file.name%}"><img src="{%=file.thumbnail_url%}" style="width:80px"></a>
+          {% } %}
+        </td>
+        <td class="name">
+          <a href="{%=file.url%}" title="{%=file.name%}" rel="{%=file.thumbnail_url&&'gallery'%}" download="{%=file.name%}">{%=file.name%}</a>
+        </td>
+        <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
+        <td colspan="2"></td>
+        {% } %}
+        <td class="delete">
+          <button class="btn red" data-type="{%=file.delete_type%}" data-url="{%=file.delete_url%}">
+            <i class="icon-trash icon-white"></i>
+            <span>{%=locale.fileupload.destroy%}</span>
+          </button>
+          <input type="checkbox" class="fileupload-checkbox hide" name="delete" value="1">
+        </td>
+      </tr>
+      {% } %}
+
+
+
+
+
+
+
+
+
+
+    </script>
+
+  </div>
+
+</div>
+
+<div class="form-actions">
+
+  <button type="button" class="btn green" onclick="validate()">保存</button>
+
+  <button type="button" class="btn red" onclick="history.go(-1);">取消</button>
+
+</div>
+
+<script>
+    var form1 = $('#form_sample_1');
+    var error1 = $('.alert-error', form1);
+    var success1 = $('.alert-success', form1);
+
+    form1.validate({
+        doNotHideMessage: true, //this option enables to show the error/success messages on tab switch.
+        errorElement: 'span', //default input error message container
+        errorClass: 'input-error tooltips', // default input error message class
+        validClass: 'input-success tooltips',
+        focusInvalid: false, // do not focus the last invalid input
+        ignore: ".ignore",
+        rules: {
+            title: {
+                minlength: 2,
+                required: true
+            },
+            content: {
+                required: true
+            },
+            discount_type: {
+                required: true
+            },
+            price: {
+                number: true
+            },
+            sale_price: {
+                number: true
+            },
+            'sub_discount_type[]': {
+                required: true
+            }
+        },
+
+        invalidHandler: function (event, validator) { //display error alert on form submit
+            success1.hide();
+            error1.show();
+            App.scrollTo(error1, -200);
+        },
+
+        highlight: function (element) { // hightlight error inputs
+            $(element)
+                    .closest('.help-inline').removeClass('ok'); // display OK icon
+            $(element)
+                    .closest('.control-group').removeClass('success').addClass('error'); // set error class to the control group
+        },
+
+        unhighlight: function (element) { // revert the change dony by hightlight
+            $(element)
+                    .closest('.control-group').removeClass('error'); // set error class to the control group
+        },
+
+        success: function (label, element) {
+            //自定义成功提示
+            label.closest('.control-group').removeClass('error').addClass('success'); // set success class to the control group
+            label.html("<i class='help-inline ok' style='margin-top: 0;'></i>");
+
+            label.insertAfter(element);
+        },
+
+        error: function (label, element) {
+            //自定义成功提示
+            label.closest('.control-group').removeClass('success').addClass('error'); // set success class to the control group
+            label.attr("data-original-title", label.text());
+            label.html("<i class='icon-exclamation-sign'></i>");
+
+            label.insertAfter(element);
+        },
+
+        update: function () {
+            App.updateTooltips();
+        },
+
+        submitHandler: function (form) {
+            error1.hide();
+            jQuery.ajax({
+                type: 'POST',
+                url: $(form).attr("action"),
+                data: $(form).serialize(),
+                dataType: 'script'
+            });
+        }
+    });
+
+
+    // Initialize the jQuery File Upload widget:
+    $('#fileupload').fileupload();
+
+
+    $('#fileupload').fileupload('option', {
+        maxFileSize: 1000000,
+        acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
+        sequentialUploads: true,
+        add: function (e, data) {
+            var jqXHR = data.submit()
+                    .success(function (result, textStatus, jqXHR) {
+                        var file = result.files[0]; // "jquery-json"
+                        $("#documents_hidden").append("<br>" + "<input type='hidden' name='documents[]' value='" + file.id + "'>" + "<br>");
+                    });
+        }
+    });
+
+    // Load existing files:
+
+    $.ajax({
+        // Uncomment the following to send cross-domain cookies:
+        //xhrFields: {withCredentials: true},
+        url: "/documents?discount_id=<%= @discount.id %>",
+        dataType: 'json',
+        context: $('#fileupload')[0],
+        maxFileSize: 1000000,
+        acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i
+    }).done(function (result) {
+        $(this).fileupload('option', 'done')
+                .call(this, null, {
+                    result: result
+                });
+    });
+
+
+    function validate() {
+        form1.submit();
+    }
+    discount_types = new Array;
+    sub_discount_types = new Array;
+
+    <% @discount_types.each do|discount_type| %>
+    <% if discount_type.parent.blank? || discount_type.parent==0 %>
+    discount_types.push(new Array(<%= discount_type[:id] %>, '<%= discount_type[:name] %>', <%= discount_type[:parent] %>));
+    <% else %>
+    sub_discount_types.push(new Array(<%= discount_type[:id] %>, '<%= discount_type[:name] %>', <%= discount_type[:parent] %>));
+    <% end %>
+    <% end %>
+    $('#discount_type').select2({
+        placeholder: "选择服务信息类型",
+        allowClear: true
+    });
+
+    $('#sub_discount_type').select2({
+        placeholder: "选择服务信息类型",
+        allowClear: true
+    });
+
+    $('#discount_type').on("change", function () {
+        var discount_type_id = $("#discount_type").val();
+        var data = $("#discount_type").select2("data");
+        delete data.element;
+        if (discount_type_id == null || discount_type_id == '') {
+            $('#sub_discount_div').hide();
+        } else {
+            $("#sub_discount_type").empty();
+            if (is_car_wash_discount(data.text)) {
+                $("#sub_discount_type").select2({ maximumSelectionSize: 1 });
+            } else {
+                $("#sub_discount_type").select2({ maximumSelectionSize: sub_discount_types.length });
+            }
+            $("#sub_discount_type").select2("val", "");
+            for (i = 0; i < sub_discount_types.length; ++i) {
+                sub_discount_type = sub_discount_types[i];
+                if (sub_discount_type[2] == discount_type_id)
+                    $("#sub_discount_type").append(new Option(sub_discount_type[1], sub_discount_type[0]));
+            }
+            $('#sub_discount_div').show();
+        }
+    });
+
+    function is_car_wash_discount(name) {
+        return name.indexOf("洗车") > -1 || name.indexOf("7座") > -1 || name.indexOf("5座") > -1 || name.indexOf("SUV") > -1
+    }
+
+
+    <%if !@discount.discount_types.blank?%>
+    <% discount_types = @discount.discount_types %>
+    <% if !discount_types.blank?&& discount_types.count>0%>
+    var init_select_data = new Array();
+    <% discount_type=discount_types.first %>
+    <% if discount_type.parent.blank?||discount_type.parent==0 %>
+    init_select_data.push("<%= discount_type.id %>");
+    <% else %>
+    init_select_data.push("<%= discount_type.parent %>");
+    <% end %>
+    $("#discount_type").val(init_select_data).trigger("change");
+    <% end %>
+    init_select_data = new Array();
+    <% discount_types.each do|sub_discount_type| %>
+    <% if !sub_discount_type.parent.blank?&&sub_discount_type.parent!=0 %>
+    init_select_data.push("<%= sub_discount_type.id %>")
+    <% end %>
+    <% end %>
+    $("#sub_discount_type").val(init_select_data).trigger("change");
+    <% end %>
+
+    App.initUniform('.fileupload-toggle-checkbox');
+
+</script>

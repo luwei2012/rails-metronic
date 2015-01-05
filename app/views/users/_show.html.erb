@@ -1,0 +1,187 @@
+<div class="form-horizontal form-view">
+
+<h3 class="form-section">用户信息</h3>
+
+<div class="row-fluid">
+
+  <div class="span6 ">
+
+    <div class="control-group">
+
+      <label class="control-label">姓名:</label>
+
+      <div class="controls">
+
+        <span class="text"><%= @user.name %></span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="span6 ">
+
+    <div class="control-group">
+
+      <label class="control-label" for="name">性别:</label>
+
+      <div class="controls">
+
+        <% if @user.sex == 1 %>
+
+            <span class="text">男</span>
+
+        <% else %>
+
+            <span class="text">女</span>
+
+        <% end %>
+
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="row-fluid">
+
+  <div class="span6 ">
+
+    <div class="control-group">
+
+      <label class="control-label">账号:</label>
+
+      <div class="controls">
+
+        <span class="text"><%= @user.name %></span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="span6 ">
+
+    <div class="control-group">
+
+      <label class="control-label" for="name">手机号:</label>
+
+      <div class="controls">
+
+        <span class="text"><%= @user.phone %></span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="row-fluid">
+
+  <div class="span6 ">
+
+    <div class="control-group">
+
+      <label class="control-label">当前积分:</label>
+
+      <div class="controls">
+
+        <span class="text"><%= @user.integral %></span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+<!--/row-->
+
+<div class="row-fluid">
+
+  <div class="span6 ">
+
+    <div class="control-group">
+
+      <label class="control-label">车型:</label>
+
+      <div class="controls">
+
+        <span class="text"><%= @user.car_type %></span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="span6 ">
+
+    <div class="control-group">
+
+      <label class="control-label">车牌号:</label>
+
+      <div class="controls">
+
+        <span class="text"><%= @user.licence_plate %></span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="row-fluid">
+
+  <div class="span6 ">
+
+    <div class="control-group">
+
+      <label class="control-label">有效订单量:</label>
+
+      <div class="controls">
+
+        <span class="text"><%= ((@user.orders.where('status=?',2).blank?) ? 0 : @user.orders.where('status=?',2).count) %></span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="span6 ">
+
+    <div class="control-group">
+
+      <label class="control-label">订单总量:</label>
+
+      <div class="controls">
+
+        <span class="text"><%= ((@user.orders.blank?) ? 0 : "#{@user.orders.count}") %></span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div class="row-fluid" style="padding-left: 10%;">
+
+  <button type="button" class="btn black" onclick="history.go(-1);"><i class="icon-arrow-left"></i> 返回</button>
+
+</div>
+
+
+</div>

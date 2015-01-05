@@ -1,0 +1,119 @@
+<div class="span12 responsive" style="margin-top: 50px" data-tablet="span12 fix-offset" data-desktop="span12">
+
+  <!-- BEGIN EXAMPLE TABLE PORTLET-->
+
+  <div class="portlet box grey">
+
+    <div class="portlet-title">
+
+      <div class="caption"><i class="icon-calendar"></i>洗车预约安排</div>
+
+      <div class="tools">
+
+        <a href="javascript:;" class="collapse"></a>
+
+        <a href="javascript:;" class="remove"></a>
+
+      </div>
+
+      <div class="actions">
+
+        <a href="/time_manager/modify" class="btn black" data-remote="true" data-custom-flag='push_in_history'><i class="icon-edit"></i>
+          修改</a>
+
+      </div>
+
+    </div>
+
+    <div class="portlet-body">
+
+      <% if !@schedule_record.blank? %>
+          <table class="table table-striped table-bordered table-hover table-full-width" id="shop_list">
+
+            <thead>
+
+            <tr>
+
+              <th class="hidden-480">时间段</th>
+
+              <th class="hidden-480">最大预约量</th>
+
+              <% if !@pre_schedule_record.blank? && !@pre_schedule_record.start_time.blank? %>
+                  <th class="hidden-480">新最大预约量(<%= @pre_schedule_record.start_time.strftime('%Y年%m月%d日') %>生效)</th>
+              <% end %>
+
+              <th class="hidden-480">历史平均预约量</th>
+
+              <th class="hidden-480">今日预约量</th>
+
+              <th class="hidden-480">明日预约量</th>
+
+            </tr>
+
+            </thead>
+
+            <tbody>
+            <% TIME_TABLE_LIST.each do |tr_key, tr_value| %>
+                <tr class="odd gradeX">
+                  <% tr_value.each do |key, value| %>
+
+                      <td>
+                        <%= value %>
+                      </td>
+
+                      <td class="hidden-480"><%= @schedule_record[key] %></td>
+
+                      <% if !@pre_schedule_record.blank? && !@pre_schedule_record.start_time.blank? %>
+                          <td class="hidden-480"><%= @pre_schedule_record[key] %></td>
+                      <% end %>
+
+                      <td class="hidden-480">
+                        <%= @shop.book_records.average(key).to_i %>
+                      </td>
+
+                      <td class="hidden-480">
+                        <% if !@schedule_record.blank? %>
+                            <% if @today_book_record[key]< @pre_schedule_record[key] %>
+                                <% total_left =@today_book_record[key].to_s+'(剩余'+(@pre_schedule_record[key]-@today_book_record[key]).to_s+')' %>
+                            <% else %>
+                                <% total_left =@today_book_record[key].to_s+'(已满)' %>
+                            <% end %>
+                            <%= link_to total_left, "/time_manager/book_record?datetime=#{(@today_book_record.created_at+TIME_VALUE[key].to_i.hour).to_i}", :method => :get, :remote => true %>
+                        <% else %>
+                            <%= @today_book_record[key].to_i %>
+                        <% end %>
+
+                      </td>
+                      <td class="hidden-480">
+                        <% if !@schedule_record.blank? %>
+                            <% if @tomorrow_book_record[key]< @pre_schedule_record[key] %>
+                                <% total_left =@tomorrow_book_record[key].to_s+'(剩余'+(@pre_schedule_record[key]-@tomorrow_book_record[key]).to_s+')' %>
+                            <% else %>
+                                <% total_left =@tomorrow_book_record[key].to_s+'(已满)' %>
+                            <% end %>
+                            <%= link_to total_left, "/time_manager/book_record?datetime=#{(@tomorrow_book_record.created_at+TIME_VALUE[key].to_i.hour).to_i}", :method => :get, :remote => true %>
+                        <% else %>
+                            <%= @tomorrow_book_record[key].to_i %>
+                        <% end %>
+                      </td>
+
+                  <% end %>
+
+                </tr>
+            <% end %>
+
+            </tbody>
+          </table>
+      <% end %>
+
+    </div>
+
+  </div>
+
+  <!-- END EXAMPLE TABLE PORTLET-->
+
+</div>
+
+<div id="book_record_orders">
+
+</div>

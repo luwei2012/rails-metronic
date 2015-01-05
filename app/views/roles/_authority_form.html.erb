@@ -1,0 +1,244 @@
+<div class="span12 responsive" style="margin-top: 50px" data-tablet="span12 fix-offset" data-desktop="span12">
+
+  <!-- BEGIN EXAMPLE TABLE PORTLET-->
+
+  <div class="portlet box grey">
+
+    <div class="portlet-title">
+
+      <div class="caption"><i class="icon-sitemap"></i>权限修改</div>
+
+    </div>
+
+    <div class="portlet-body">
+
+      <form action="/roles/authority_update" id="form_authority_update" class="form-horizontal" autocomplete="off">
+
+        <div class="alert alert-error hide">
+
+          <button class="close" data-dismiss="alert"></button>
+
+          表格中有错误，请仔细检查.
+
+        </div>
+
+        <div class="alert alert-success hide">
+
+          <button class="close" data-dismiss="alert"></button>
+
+          表格验证正确!
+
+        </div>
+
+        <div class="control-group">
+
+          <label class="control-label">账号<span class="required">*</span></label>
+
+          <div class="controls input-icon">
+
+            <input class="m-wrap placeholder-no-fix" type="text" id="email" placeholder="Account" name="email" value="<%= (@employee.blank?) ? nil : @employee.email %>"/>
+
+            <input type="hidden" name="id" value="<%= (@employee.blank?) ? nil : @employee.id %>"/>
+
+          </div>
+
+        </div>
+
+        <div class="control-group">
+
+          <label class="control-label">修改密码</i><span class="required">*</span></label>
+
+          <div class="controls input-icon">
+
+            <input class="m-wrap placeholder-no-fix" type="password" id="register_password" placeholder="Password" name="password"/>
+
+          </div>
+
+        </div>
+
+        <div class="control-group">
+
+          <label class="control-label">确认<span class="required">*</span></label>
+
+          <div class="controls input-icon">
+
+            <input class="m-wrap placeholder-no-fix" type="password" placeholder="Re-type Your Password" name="rpassword"/>
+
+          </div>
+
+        </div>
+
+
+        <div class="control-group">
+
+          <label class="control-label">选择权限<span class="required">*</span></label>
+
+          <div class="controls input-icon">
+
+            <select id="roles_select" name="roles_select[]" class="span6 select2" multiple>
+
+              <option value=""></option>
+
+              <% roles = Role.order('authority desc') %>
+
+              <% if !roles.blank? && roles.count>0 %>
+
+                  <% roles.each do |role| %>
+
+                      <option value="<%= role.id %>"><%= role.duty %></option>
+
+                  <% end %>
+
+              <% end %>
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+        <div style="margin-left: 120px">
+
+          <button type="button" class="btn green" onclick="validate()" autofocus>保存</button>
+
+          <button type="button" class="btn red" onclick="history.go(-1);">取消</button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- END EXAMPLE TABLE PORTLET-->
+
+</div>
+
+
+<script>
+
+    $('#roles_select').select2({
+        placeholder: "请添加账户权限",
+        allowClear: true
+    });
+
+    <%if !@employee.roles.blank?%>
+    <% selected_roles = @employee.roles %>
+    <% if !selected_roles.blank?&& selected_roles.count%>
+    var init_select_data = new Array();
+    <% selected_roles.each do|role| %>
+
+    init_select_data.push("<%= role.id %>");
+
+    <% end %>
+    $("#roles_select").val(init_select_data).trigger("change");
+    <% end %>
+    <% end %>
+
+    if (jQuery().bootstrapWizard) {
+        var form = $('#form_authority_update');
+        var error = $('.alert-error', form);
+
+        form.validate({
+                    doNotHideMessage: true, //this option enables to show the error/success messages on tab switch.
+                    errorElement: 'span', //default input error message container
+                    errorClass: 'input-error tooltips', // default input error message class
+                    validClass: 'input-success tooltips',
+                    focusInvalid: false, // do not focus the last invalid input
+                    ignore: ".ignore",
+                    rules: {
+                        email: {  required: true,
+                            email: true,
+                            remote: {
+                                url: "/shops/email",
+                                type: "post",
+                                dataType: "json",
+                                data: {
+                                    email: "<%= (@employee.blank?)?nil:@employee.email%>",
+                                    employee_id: "<%= (@employee.blank?)?nil:@employee.id%>"
+                                }
+                            }
+
+                        },
+                        password: {
+                            required: true
+                        },
+                        rpassword: {
+                            equalTo: "#register_password"
+                        }
+                    },
+                    password: {
+                        required: true
+                    },
+                    rpassword: {
+                        equalTo: "#register_password"
+                    },
+                    messages: {
+                        email: {
+                            remote: "该账号已存在！"
+                        }
+                    },
+
+
+                    invalidHandler: function (event, validator) { //display error alert on form submit
+                        error.show();
+                        App.scrollTo(error, -200);
+                    },
+
+                    highlight: function (element) { // hightlight error inputs
+                        $(element)
+                                .closest('.help-inline').removeClass('ok'); // display OK icon
+                        $(element)
+                                .closest('.control-group').removeClass('success').addClass('error'); // set error class to the control group
+                    },
+
+                    unhighlight: function (element) { // revert the change dony by hightlight
+                        $(element)
+                                .closest('.control-group').removeClass('error'); // set error class to the control group
+                    },
+
+                    success: function (label, element) {
+                        //自定义成功提示
+                        label.closest('.control-group').removeClass('error').addClass('success'); // set success class to the control group
+                        label.html("<i class='help-inline ok' style='margin-top: 0;'></i>");
+                        label.insertAfter(element);
+                    },
+
+                    error: function (label, element) {
+                        //自定义成功提示
+                        label.closest('.control-group').removeClass('success').addClass('error'); // set success class to the control group
+                        label.attr("data-original-title", label.text());
+                        label.html("<i class='icon-exclamation-sign'></i>");
+                        label.insertAfter(element);
+                    },
+
+                    update: function () {
+                        App.updateTooltips();
+                    },
+
+                    submitHandler: function (form) {
+                        error.hide();
+                        jQuery.ajax({
+                            type: 'POST',
+                            url: $(form).attr("action"),
+                            data: $(form).serialize(),
+                            dataType: 'script'
+                        });
+                        //add here some ajax code to submit your form or just call form.submit() if you want to submit the form without ajax
+                    }
+                }
+        )
+        ;
+    }
+
+
+    function validate() {
+        form.submit();
+    }
+    App.updateChoosenSelect();
+    App.initUniform();
+</script>

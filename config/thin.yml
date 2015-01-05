@@ -1,0 +1,15 @@
+---
+chdir: "/var/www/car_wash/current"
+environment: production
+address: 0.0.0.0
+port: 3000
+timeout: 30
+log: "/var/www/car_wash/shared/tmp/pids/log/thin.log"
+pid: tmp/pids/thin.pid
+max_conns: 1024
+max_persistent_conns: 100
+require: []
+wait: 30
+threadpool_size: 20
+servers: 1
+daemonize: true

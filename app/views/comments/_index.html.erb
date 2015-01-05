@@ -1,0 +1,184 @@
+<div class="span12 responsive" style="margin-top: 50px" data-tablet="span12 fix-offset" data-desktop="span12">
+
+  <!-- BEGIN EXAMPLE TABLE PORTLET-->
+
+  <div class="portlet box grey">
+
+    <div class="portlet-title">
+
+      <div class="caption"><i class="icon-file-text"></i>用户反馈列表</div>
+
+      <div class="tools">
+
+        <a href="javascript:;" class="collapse"></a>
+
+        <a href="javascript:;" class="remove"></a>
+
+      </div>
+
+    </div>
+
+    <div class="portlet-body">
+
+
+      <table class="table table-striped table-bordered table-hover table-full-width" id="comment_list">
+
+        <thead>
+
+        <tr>
+
+          <th>ID</th>
+
+          <th>账号</th>
+
+          <th class="hidden-480">内容</th>
+
+          <th class="hidden-480">积分奖励</th>
+
+          <th class="hidden-480">状态</th>
+
+          <th class="hidden-480">创建日期</th>
+
+          <th class="hidden-480">审批</th>
+
+          <th class="hidden-480">删除</th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+        <% if !@comments.blank? %>
+            <% @comments.each do |l| %>
+                <tr class="odd gradeX">
+
+                  <td>
+                    <%= l.id %>
+                  </td>
+
+                  <td>
+                    <%= (l.user.blank?) ? '该用户已被删除' : l.user.account %>
+                  </td>
+
+                  <td>
+                    <%= link_to l.content, "/comments/#{l.id}", :remote => true, :'data-custom-flag' => 'push_in_history' %>
+                  </td>
+
+                  <td class="hidden-480"><%= l.bonus_integral %></td>
+
+                  <td class="hidden-480"><%= COMMENT_STATUS_REVERSE[l.status] %></td>
+
+                  <td class="hidden-480"><%= ((l.created_at.blank?) ? nil : "#{l.created_at.strftime('%Y年%m月%d日 %H时%M分')}") %></td>
+
+                  <td>
+
+                    <% if l.status == COMMENT_STATUS[:not_checked] %>
+                        <%= link_to '审批', "/comments/#{l.id}/edit", :method => :get, :remote => true, :'data-custom-flag' => 'push_in_history' %>
+                    <% elsif l.status != COMMENT_STATUS[:bonus] %>
+                        <%= link_to '奖励', "/comments/#{l.id}/edit", :method => :get, :remote => true, :'data-custom-flag' => 'push_in_history' %>
+                    <% else %>
+                        <span class="text" style="color: #808080"><%= COMMENT_STATUS_REVERSE[l.status] %></span>
+                    <% end %>
+
+                  </td>
+
+                  <td>
+                    <a class="delete" href="javascript:;" data-toggle="modal"
+                       data-target="#confirm-modal" data-backdrop="static"
+                       data-keyboard="true"
+                       onclick="comment_list_show_confirm_modal(this);">删除</a>
+                  </td>
+
+                </tr>
+
+            <% end %>
+        <% end %>
+        </tbody>
+      </table>
+
+
+    </div>
+
+  </div>
+
+  <!-- END EXAMPLE TABLE PORTLET-->
+
+</div>
+
+<script>
+
+    if ($('#comment_list').length) {
+        comment_list_table = $('#comment_list').dataTable({
+            "aLengthMenu": [
+                [5, 15, 20, -1],
+                ["5", "15", "20", "所有"] // change per page values here
+            ],
+            // set the initial value
+            "iDisplayLength": 20,
+            "sDom": "<'row-fluid'<'span6'l><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
+            "sPaginationType": "bootstrap",
+            "oLanguage": {
+                "sLengthMenu": "_MENU_ per page",
+                "sProcessing": "正在加载中......",
+                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
+                "sZeroRecords": "没有符合条件的数据！",
+                "sEmptyTable": "表中无数据存在！",
+                "sInfoFiltered": "(_MAX_)",
+                "sInfoEmpty": "显示 0 至 0 共 0 项",
+                "sSearch": "搜索：",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "末页"
+                }
+            },
+            "aoColumnDefs": [
+                { "bVisible": false, "aTargets": [ 0, 5 ] },
+                {
+                    'bSortable': false,
+                    'aTargets': [7]
+                }
+            ]
+        });
+        comment_list_table.fnSort([
+            [5, 'desc']
+        ]);
+
+        jQuery('#comment_list_wrapper .dataTables_filter input').addClass("m-wrap small"); // modify table search input
+        jQuery('#comment_list_wrapper .dataTables_length select').addClass("m-wrap small"); // modify table per page dropdown
+        jQuery('#comment_list_wrapper .dataTables_length select').select2(); // initialzie select2 dropdown
+
+
+    }
+
+    function comment_list_show_confirm_modal(element) {
+        var nRow = $(element).parents('tr')[0];
+        var aData = comment_list_table.fnGetData(nRow);
+        var path = "/comments/" + aData[0];
+        var question = "确认删除：" + aData[1];
+        $('#confirm-modal #question').text(question);
+        $('#confirm-modal #delete').one("click", function () {
+
+            $.ajax({
+                async: false,
+                type: "DELETE",
+                url: path,
+                success: function (result, textStatus, jqXHR) {
+                    if (result == true) {
+                        var nRow = $(element).parents('tr')[0];
+                        comment_list_table.fnDeleteRow(nRow);
+                    } else {
+                        $('#messages').html('<%= escape_javascript(render('/layouts/messages')) %>');
+                    }
+                    App.fixContentHeight(); // fix content height
+                    App.initUniform(); // initialize uniform elements
+                },
+                dataType: 'json'
+            });
+        });
+    }
+
+
+</script>

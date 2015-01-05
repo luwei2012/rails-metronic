@@ -1,0 +1,170 @@
+<div class="span12 responsive" style="margin-top: 50px" data-tablet="span12 fix-offset" data-desktop="span12">
+
+  <!-- BEGIN EXAMPLE TABLE PORTLET-->
+
+  <div class="portlet box grey">
+
+    <div class="portlet-title">
+
+      <div class="caption"><i class="icon-cogs"></i>品牌/连锁列表</div>
+
+      <div class="tools">
+
+        <a href="javascript:;" class="collapse"></a>
+
+        <a href="javascript:;" class="remove"></a>
+
+      </div>
+
+      <div class="actions">
+
+        <a href="/brands/new" class="btn black" data-remote="true" data-custom-flag="push_in_history"><i class="icon-plus"></i>
+          添加</a>
+
+      </div>
+
+    </div>
+
+    <div class="portlet-body">
+
+
+      <table class="table table-striped table-bordered table-hover table-full-width" id="brand_list">
+
+        <thead>
+
+        <tr>
+
+          <th>品牌/连锁名</th>
+
+          <th class="hidden-480">店铺数量</th>
+
+          <th class="hidden-480">创建日期</th>
+
+          <th class="hidden-480">修改</th>
+
+          <th class="hidden-480">删除</th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+        <% if !@brands.blank? %>
+            <% @brands.each do |l| %>
+                <tr class="odd gradeX">
+
+                  <td>
+                    <%= link_to l[:name], "/brands/#{l[:id]}", :remote => true, :'data-custom-flag' => 'push_in_history' %>
+                  </td>
+
+                  <td class="hidden-480"><%= link_to ((l.shops.blank?) ? '0' : "#{l.shops.count}"), "/brands/brand_shop_list?id=#{l[:id]}/", :method => :get, :remote => true %></td>
+
+                  <td>
+                    <%= (l.created_at.blank?) ? nil : l.created_at.strftime('%Y年%m月%d日 %H时%M分') %>
+                  </td>
+
+                  <td>
+                    <%= link_to '修改', "/brands/#{l[:id]}/edit", :method => :get, :remote => true, :'data-custom-flag' => 'push_in_history' %>
+                  </td>
+
+                  <td>
+                    <a style="height: 14px; padding-left: 5px;" title="删除" data-toggle="modal" data-target="#confirm-modal"
+                       data-backdrop="static" data-keyboard="true"
+                       href="javascript:;"
+                       onclick="brand_list_show_confirm_modal(this,'/brands/<%=l[:id]%>',
+                               'Are you sure you want to delete : <%= l.name%>');">
+                      <span>删除</span>
+                    </a>
+                  </td>
+
+                </tr>
+
+            <% end %>
+        <% end %>
+        </tbody>
+      </table>
+
+
+    </div>
+
+  </div>
+
+  <!-- END EXAMPLE TABLE PORTLET-->
+
+</div>
+
+<script>
+
+    if ($('#brand_list').length) {
+        brand_list_table = $('#brand_list').dataTable({
+            "aLengthMenu": [
+                [5, 15, 20, -1],
+                ["5", "15", "20", "所有"] // change per page values here
+            ],
+            // set the initial value
+            "iDisplayLength": 20,
+            "sDom": "<'row-fluid'<'span6'l><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
+            "sPaginationType": "bootstrap",
+            "oLanguage": {
+                "sLengthMenu": "_MENU_ per page",
+                "sProcessing": "正在加载中......",
+                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
+                "sZeroRecords": "没有符合条件的数据！",
+                "sEmptyTable": "表中无数据存在！",
+                "sInfoFiltered": "(_MAX_)",
+                "sInfoEmpty": "显示 0 至 0 共 0 项",
+                "sSearch": "搜索：",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "末页"
+                }
+            },
+            "aoColumnDefs": [
+
+                {
+                    'bSortable': false,
+                    'aTargets': [3, 4]
+                },
+                { "bVisible": false, "aTargets": [ 2 ] }
+            ]
+        });
+        brand_list_table.fnSort([
+            [2, 'desc']
+        ]);
+
+
+        jQuery('#brand_list_wrapper .dataTables_filter input').addClass("m-wrap small"); // modify table search input
+        jQuery('#brand_list_wrapper .dataTables_length select').addClass("m-wrap small"); // modify table per page dropdown
+        jQuery('#brand_list_wrapper .dataTables_length select').select2(); // initialzie select2 dropdown
+    }
+
+    function brand_list_show_confirm_modal(element, path, question) {
+        $('#confirm-modal #question').text(question);
+        $('#confirm-modal #delete').one("click", function () {
+            $.ajax({
+                async: false,
+                type: "DELETE",
+                url: path,
+                success: function (result, textStatus, jqXHR) {
+                    if (result == true) {
+                        var nRow = $(element).parents('tr')[0];
+                        brand_list_table.fnDeleteRow(nRow);
+                    } else {
+                        $('#messages').html('<%= escape_javascript(render('/layouts/messages')) %>');
+                    }
+                    App.fixContentHeight(); // fix content height
+                    App.initUniform(); // initialize uniform elements
+                },
+                dataType: 'json'
+            });
+        });
+    }
+
+</script>
+
+<div id="brand_shop_list_div">
+  <%= render '/shops/index' %>
+</div>

@@ -1,0 +1,221 @@
+<div class="span12 responsive" style="margin-top: 50px" data-tablet="span12 fix-offset" data-desktop="span12">
+
+  <!-- BEGIN EXAMPLE TABLE PORTLET-->
+
+  <div class="portlet box grey">
+
+    <div class="portlet-title">
+
+      <div class="caption"><i class="icon-home"></i>店铺列表</div>
+
+      <div class="tools">
+
+        <a href="javascript:;" class="collapse"></a>
+
+        <a href="javascript:;" class="remove"></a>
+
+      </div>
+
+      <div class="actions">
+
+        <a href="/shops/new" class="btn black" data-remote="true" data-custom-flag='push_in_history'><i class="icon-plus"></i>
+          添加</a>
+
+      </div>
+
+    </div>
+
+    <div class="portlet-body">
+
+
+      <table class="table table-striped table-bordered table-hover table-full-width" id="shop_list">
+
+        <thead>
+
+        <tr>
+
+          <th>商家名</th>
+
+          <th class="hidden-480">地址</th>
+
+          <th class="hidden-480">电话</th>
+
+          <th class="hidden-480">是否支持预约</th>
+
+          <th class="hidden-480">是否平台推广</th>
+
+          <th class="hidden-480">浏览量</th>
+
+          <th class="hidden-480">总订单量</th>
+
+          <th class="hidden-480">当日订单量</th>
+
+          <th class="hidden-480">累积评价</th>
+
+          <th class="hidden-480">创建日期</th>
+
+          <th class="hidden-480">修改</th>
+
+          <th class="hidden-480">删除</th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+        <% if !@shops.blank? %>
+            <% @shops.each do |l| %>
+                <tr class="odd gradeX">
+
+                  <td>
+                    <%= link_to l[:name], "/shops/#{l[:id]}", :remote => true, :'data-custom-flag' => 'push_in_history' %>
+                  </td>
+
+                  <td class="hidden-480"><%= l[:address] %></td>
+
+                  <td class="hidden-480"><%= l[:telephone_area_code] %>-<%= l[:telephone_number] %></td>
+
+                  <td class="hidden-480">
+
+                    <% if !l.car_wash_bookable.blank? && l.car_wash_bookable==true %>
+
+                        <span class="label label-success">支持在线预约</span>
+                    <% else %>
+                        <span class="label label-danger">不支持在线预约</span>
+                    <% end %>
+
+                  </td>
+
+                  <td class="hidden-480">
+
+                    <% if !l.cooperation.blank? && l.cooperation==true %>
+
+                        <span class="label label-success">平台合作商家</span>
+                    <% else %>
+                        <span class="label label-danger">非平台合作商家</span>
+                    <% end %>
+
+                  </td>
+
+                  <td>
+                    <%= l.discounts.sum(:visitor_count) %>
+                  </td>
+
+                  <td>
+                    <%= (l.orders.blank?) ? 0 : l.orders.count %>
+                  </td>
+
+                  <td>
+                    <%= (l.orders.where(created_at: Time.now.midnight..(Time.now.midnight + 1.day)).blank?) ? 0 : l.orders.where(created_at: Time.now.midnight..(Time.now.midnight + 1.day)).count %>
+                  </td>
+
+                  <td>
+                    <% average_grade = l.score_records.average(:average_grade) %>
+                    <%= (average_grade.blank?) ? 0 : average_grade %>
+                  </td>
+
+                  <td>
+                    <%= (l.created_at.blank?) ? nil : l.created_at.strftime('%Y年%m月%d日 %H时%M分') %>
+                  </td>
+
+                  <!--<td><span class="label label-success">Approved</span></td>-->
+                  <td>
+                    <%= link_to '修改', "/shops/#{l[:id]}/edit", :method => :get, :remote => true, :'data-custom-flag' => 'push_in_history' %>
+                  </td>
+
+                  <td>
+                    <% if l.employee.id!=session[:user_id] %>
+                        <a style="height: 14px; padding-left: 5px;" title="删除" data-toggle="modal" data-target="#confirm-modal"
+                           data-backdrop="static" data-keyboard="true"
+                           href="javascript:;"
+                           onclick="shop_list_show_confirm_modal(this,'/shops/<%=l[:id]%>',
+                                   'Are you sure you want to delete : <%= l.name%>');">
+                          <span>删除</span>
+                        </a>
+                    <% end %>
+                  </td>
+
+                </tr>
+
+            <% end %>
+        <% end %>
+        </tbody>
+      </table>
+
+
+    </div>
+
+  </div>
+
+  <!-- END EXAMPLE TABLE PORTLET-->
+
+</div>
+
+<script>
+
+    if ($('#shop_list').length) {
+        shop_list_table = $('#shop_list').dataTable({
+            "aLengthMenu": [
+                [5, 15, 20, -1],
+                ["5", "15", "20", "所有"] // change per page values here
+            ],
+            // set the initial value
+            "iDisplayLength": 20,
+            "sDom": "<'row-fluid'<'span6'l><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
+            "sPaginationType": "bootstrap",
+            "oLanguage": {
+                "sLengthMenu": "_MENU_ per page",
+                "sProcessing": "正在加载中......",
+                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
+                "sZeroRecords": "没有符合条件的数据！",
+                "sEmptyTable": "表中无数据存在！",
+                "sInfoFiltered": "(_MAX_)",
+                "sInfoEmpty": "显示 0 至 0 共 0 项",
+                "sSearch": "搜索：",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "末页"
+                }
+            },
+            "aoColumnDefs": [
+                { "bVisible": false, "aTargets": [ 9 ] },
+                {
+                    'bSortable': false,
+                    'aTargets': [1, 2, 10, 11]
+                }
+            ]
+        });
+        shop_list_table.fnSort([
+            [9, 'desc']
+        ]);
+        jQuery('#shop_list_wrapper .dataTables_filter input').addClass("m-wrap small"); // modify table search input
+        jQuery('#shop_list_wrapper .dataTables_length select').addClass("m-wrap small"); // modify table per page dropdown
+        jQuery('#shop_list_wrapper .dataTables_length select').select2(); // initialzie select2 dropdown
+    }
+
+    function shop_list_show_confirm_modal(element, path, question) {
+        $('#confirm-modal #question').text(question);
+        $('#confirm-modal #delete').one("click", function () {
+            $.ajax({
+                async: false,
+                type: "DELETE",
+                url: path,
+                success: function (result, textStatus, jqXHR) {
+                    if (result == true) {
+                        var nRow = $(element).parents('tr')[0];
+                        shop_list_table.fnDeleteRow(nRow);
+                    } else {
+                        $('#messages').html('<%= escape_javascript(render('/layouts/messages')) %>');
+                    }
+                    App.fixContentHeight(); // fix content height
+                    App.initUniform(); // initialize uniform elements
+                },
+                dataType: 'json'
+            });
+        });
+    }
+
+</script>

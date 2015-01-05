@@ -1,0 +1,9 @@
+var pageContentBody = $('.page-content .page-content-body');
+
+<% if @employee.errors.any?%>
+<!--创建不成功-->
+pageContentBody.html("<%= escape_javascript(render 'authority_form') %>");
+<% else %>
+pageContentBody.html("<%= escape_javascript(render 'authority') %>");
+<% end %>
+$('#messages').html('<%= escape_javascript(render('/layouts/messages')) %>');

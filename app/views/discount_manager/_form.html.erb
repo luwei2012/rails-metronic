@@ -1,0 +1,112 @@
+<div class="alert alert-error hide">
+
+  <button class="close" data-dismiss="alert"></button>
+
+  表格中有错误，请仔细检查.
+
+</div>
+
+<div class="alert alert-success hide">
+
+  <button class="close" data-dismiss="alert"></button>
+
+  表格验证正确!
+
+</div>
+
+<div class="control-group">
+
+  <label class="control-label">标题<span class="required">*</span></label>
+
+  <div class="controls  input-icon">
+
+    <input type="text" name="title" data-required="1" class="span6 m-wrap" value="<%= @discount.title %>"/>
+
+  </div>
+
+</div>
+
+<div class="control-group">
+
+  <label class="control-label">内容<span class="required">*</span></label>
+
+  <div class="controls  input-icon">
+
+    <textarea name="content" type="text" class="span6 m-wrap" rows="8"><%= @discount.content %></textarea>
+
+  </div>
+
+</div>
+
+<div class="control-group">
+
+  <label class="control-label">类型<span class="required">*</span></label>
+
+  <div class="controls input-icon">
+
+    <select id="discount_type" name="discount_type" class="span6 select2">
+
+      <option value=""></option>
+
+      <% if !@discount_types.blank? && @discount_types.count>0 %>
+
+          <% @discount_types.each do |discount_type| %>
+              <% if discount_type.parent.to_i == 0 %>
+                  <option value="<%= discount_type.id %>"> <%= discount_type.name %></option>
+              <% end %>
+          <% end %>
+
+      <% end %>
+
+    </select>
+
+  </div>
+
+</div>
+
+<div class="control-group" id="sub_discount_div" style="display: none">
+
+  <label class="control-label">子类型<span class="required">*</span></label>
+
+  <div class="controls input-icon">
+
+    <select id="sub_discount_type" name="sub_discount_type[]" class="span6 select2" multiple>
+
+      <option value=""></option>
+
+    </select>
+
+  </div>
+
+</div>
+
+<div class="control-group">
+
+  <label class="control-label">原始价格</label>
+
+  <div class="controls input-icon">
+
+    <input type="text" name="price" data-required="1" class="span2 m-wrap" value="<%= @discount.price %>"/><span class="help-inline">元</span>
+
+  </div>
+
+</div>
+
+<div class="control-group">
+
+  <label class="control-label">平台价格</label>
+
+  <div class="controls input-icon">
+
+    <input type="text" name="sale_price" data-required="1" class="span2 m-wrap" value="<%= @discount.sale_price %>"/><span class="help-inline">元</span>
+
+  </div>
+
+</div>
+
+<div class="control-group" style="display: none" id="documents_hidden">
+</div>
+
+
+
+

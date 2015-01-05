@@ -1,0 +1,141 @@
+<div class="span12 responsive" style="margin-top: 50px" data-tablet="span12 fix-offset" data-desktop="span12">
+
+  <!-- BEGIN EXAMPLE TABLE PORTLET-->
+
+  <div class="portlet box grey">
+
+    <div class="portlet-title">
+
+      <div class="caption"><i class="icon-home"></i>店铺权限列表</div>
+
+    </div>
+
+    <div class="portlet-body">
+
+      <% if !@shops.blank? %>
+          <table class="table table-striped table-bordered table-hover table-full-width" id="shop_authority_list">
+
+            <thead>
+
+            <tr>
+
+              <th>店铺名</th>
+
+              <th class="hidden-480">管理账号</th>
+
+              <th class="hidden-480">权限</th>
+
+              <th class="hidden-480">上次修改日期</th>
+
+              <th class="hidden-480">修改</th>
+
+            </tr>
+
+            </thead>
+
+            <tbody>
+            <% @shops.each do |l| %>
+                <tr class="odd gradeX">
+
+                  <td>
+                    <%= link_to l[:name], "/shops/#{l[:id]}", :remote => true, :'data-custom-flag' => 'push_in_history' %>
+                  </td>
+
+                  <td class="hidden-480"><%= l.employee.email %></td>
+
+                  <td class="hidden-480">
+
+                    <% l.employee.roles.each do |role| %>
+
+                        <span class="label label-success"><%= role.duty %></span>&nbsp
+
+                    <% end %>
+
+                  </td>
+
+                  <td class="hidden-480"><%= (l.created_at.blank?) ? nil : l.created_at.strftime('%Y年%m月%d日 %H时%M分') %></td>
+
+                  <!--<td><span class="label label-success">Approved</span></td>-->
+                  <td>
+                    <%= link_to '修改', "/shops/authority_edit?id=#{l.employee.id}", :method => :get, :remote => true, :'data-custom-flag' => 'push_in_history' %>
+                  </td>
+
+                </tr>
+
+            <% end %>
+            </tbody>
+          </table>
+
+      <% end %>
+
+    </div>
+
+  </div>
+
+  <!-- END EXAMPLE TABLE PORTLET-->
+
+</div>
+
+<script>
+
+    if ($('#shop_authority_list').length) {
+        shop_authority_list_table = $('#shop_authority_list').dataTable({
+            "aLengthMenu": [
+                [5, 15, 20, -1],
+                ["5", "15", "20", "所有"] // change per page values here
+            ],
+            // set the initial value
+            "iDisplayLength": 20,
+            "sDom": "<'row-fluid'<'span6'l><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
+            "sPaginationType": "bootstrap",
+            "oLanguage": {
+                "sLengthMenu": "_MENU_ per page",
+                "sProcessing": "正在加载中......",
+                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
+                "sZeroRecords": "没有符合条件的数据！",
+                "sEmptyTable": "表中无数据存在！",
+                "sInfoFiltered": "(_MAX_)",
+                "sInfoEmpty": "显示 0 至 0 共 0 项",
+                "sSearch": "搜索：",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "末页"
+                }
+            }
+        });
+        shop_authority_list_table.fnSort([
+            [3, 'desc']
+        ]);
+
+
+        jQuery('#shop_authority_list_wrapper .dataTables_filter input').addClass("m-wrap small"); // modify table search input
+        jQuery('#shop_authority_list_wrapper .dataTables_length select').addClass("m-wrap small"); // modify table per page dropdown
+        jQuery('#shop_authority_list_wrapper .dataTables_length select').select2(); // initialzie select2 dropdown
+    }
+
+    function shop_authority_list_show_confirm_modal(element, path, question) {
+        $('#confirm-modal #question').text(question);
+        $('#confirm-modal #delete').one("click", function () {
+            $.ajax({
+                async: false,
+                type: "DELETE",
+                url: path,
+                success: function (result, textStatus, jqXHR) {
+                    if (result == true) {
+                        var nRow = $(element).parents('tr')[0];
+                        shop_authority_list_table.fnDeleteRow(nRow);
+                    } else {
+                        $('#messages').html('<%= escape_javascript(render('/layouts/messages')) %>');
+                    }
+                    App.fixContentHeight(); // fix content height
+                    App.initUniform(); // initialize uniform elements
+                },
+                dataType: 'json'
+            });
+        });
+    }
+
+</script>

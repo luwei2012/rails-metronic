@@ -1,0 +1,98 @@
+<div class="form-horizontal form-view">
+
+  <h3 class="form-section">用户反馈信息</h3>
+
+
+  <div class="row-fluid">
+
+    <div class="span6 ">
+
+      <div class="control-group">
+
+        <label class="control-label">用户账号:</label>
+
+        <div class="controls">
+
+          <span class="text"><%= (@comment.user.blank?) ? '该用户已被删除' : @comment.user.account %></span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="span6 ">
+
+      <div class="control-group">
+
+        <label class="control-label" for="name">奖励积分:</label>
+
+        <div class="controls">
+
+          <span class="text"><%= @comment.bonus_integral %></span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="row-fluid">
+
+    <div class="span6 ">
+
+      <div class="control-group">
+
+        <label class="control-label" for="name">状态:</label>
+
+        <div class="controls">
+
+          <span class="text"><i class="icon-tags"></i><%= COMMENT_STATUS_KEY[@comment.status] %></span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="row-fluid">
+
+    <div class="span6 ">
+
+      <div class="control-group">
+
+        <label class="control-label" for="name">内容:</label>
+
+        <div class="controls">
+
+          <span class="text"><%= @comment.content %></span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+  <!--/row-->
+
+  <div class="row-fluid" style="padding-left: 10%;">
+
+    <% if @comment.status == COMMENT_STATUS[:not_checked] %>
+        <a href="/comments/<%= @comment.id %>/edit" class="btn blue" data-remote="true" data-method="get"><i class="icon-pencil"></i>
+          审批</a>
+    <% elsif @comment.status != COMMENT_STATUS[:bonus] %>
+        <a href="/comments/<%= @comment.id %>/edit" class="btn blue" data-remote="true" data-method="get"><i class="icon-pencil"></i>
+          奖励</a>
+    <% end %>
+
+    <button type="button" class="btn black" onclick="history.go(-1);"><i class="icon-arrow-left"></i> 返回</button>
+  </div>
+
+
+</div>

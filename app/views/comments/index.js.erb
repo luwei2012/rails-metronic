@@ -1,0 +1,6 @@
+var pageContentBody = $('.page-content .page-content-body');
+pageContentBody.html("<%= escape_javascript(render 'index') %>");
+
+$("#comment_notification").html("<li><p>暂无新反馈</p></li>");
+$('#comment_notification_badge').text(0);
+$('#comment_notification_badge').hide()

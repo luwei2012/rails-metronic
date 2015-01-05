@@ -1,0 +1,224 @@
+<div class="row-fluid" style="margin-top: 50px" xmlns="http://www.w3.org/1999/html">
+
+  <div class="span12">
+
+    <div class="portlet box grey" id="form_wizard_1">
+
+      <div class="portlet-title">
+
+        <div class="caption"><i class="icon-cogs"></i>品牌编辑</div>
+
+        <div class="actions">
+
+          <button type="button" class="btn black" onclick="history.go(-1);"><i class="icon-arrow-left"></i> 返回</button>
+
+        </div>
+
+      </div>
+
+      <div class="portlet-body form">
+
+        <%= form_for(@brand, {:html => {:remote => true, :class => "form-horizontal", :id => "submit_form", :autocomplete => "off"}}) do |f| %>
+
+            <div class="alert alert-error hide">
+
+              <button class="close" data-dismiss="alert"></button>
+
+              表格中有错误，请仔细检查.
+
+            </div>
+
+            <div class="alert alert-success hide">
+
+              <button class="close" data-dismiss="alert"></button>
+
+              表格验证正确!
+
+            </div>
+
+            <div class="control-group">
+
+              <label class="control-label">品牌名<span class="required">*</span></label>
+
+              <div class="controls input-icon">
+
+                <input type="text" class="span6 m-wrap" name="name" value="<%= @brand.name %>" id="name"/>
+
+              </div>
+
+            </div>
+
+            <div class="control-group">
+
+              <label class="control-label">品牌logo</label>
+
+              <div class="controls input-icon">
+
+                <a href="javascript:;" data-toggle="modal" data-target="#myModal" class="btn green" onclick="show_upload_div('<%=@brand.id%>');"><i class="icon-upload icon-white"></i>上传</a>
+
+                </br>
+
+                <div id="documents_hidden">
+                  <% if !@brand.brand_photo.blank? && Document.exists?(@brand.brand_photo) %>
+                      <img src="<%= Document.find(@brand.brand_photo).original %>" style="width:120px"></br>
+                  <% end %>
+                </div>
+
+                <input type="text" style="display:none;" name="brand_photo" id="brand_photo" value="<%= @brand.brand_photo %>"/>
+
+              </div>
+
+            </div>
+
+            <div class="form-actions">
+
+              <button type="button" class="btn green" onclick="validate()">保存</button>
+
+              <button type="button" class="btn red" onclick="history.go(-1);">取消</button>
+
+            </div>
+
+        <% end %>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+
+</div>
+
+<script>
+
+    var form = $('#submit_form');
+    var error = $('.alert-error', form);
+
+    form.validate({
+        doNotHideMessage: true, //this option enables to show the error/success messages on tab switch.
+        errorElement: 'span', //default input error message container
+        errorClass: 'input-error tooltips', // default input error message class
+        validClass: 'input-success tooltips',
+        focusInvalid: false, // do not focus the last invalid input
+        ignore: ".ignore",
+        rules: {
+            name: {
+                required: true,
+                remote: {
+                    url: "/brands/brand_name",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        brand_name: function () {
+                            return $("#name").val();
+                        },
+                        id: "<%= (@brand.blank?)?nil:@brand.id%>"
+                    }
+                }
+            },
+            brand_photo: {
+                remote: {
+                    url: "/documents/validate",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        photo: function () {
+                            return $("#brand_photo").val();
+                        }
+                    }
+                }
+            }
+        },
+
+        messages: {
+            brand_photo: {
+                remote: "请上传品牌logo！"
+            },
+            name: {
+                remote: "该品牌已存在！"
+            }
+        },
+
+
+        invalidHandler: function (event, validator) { //display error alert on form submit
+            error.show();
+            App.scrollTo(error, -200);
+        },
+
+        highlight: function (element) { // hightlight error inputs
+            $(element)
+                    .closest('.help-inline').removeClass('ok'); // display OK icon
+            $(element)
+                    .closest('.control-group').removeClass('success').addClass('error'); // set error class to the control group
+        },
+
+        unhighlight: function (element) { // revert the change dony by hightlight
+            $(element)
+                    .closest('.control-group').removeClass('error'); // set error class to the control group
+        },
+
+        success: function (label, element) {
+            //自定义成功提示
+            label.closest('.control-group').removeClass('error').addClass('success'); // set success class to the control group
+            label.html("<i class='help-inline ok' style='margin-top: 0;'></i>");
+            if (($(element)).attr("name") == "brand_photo") {
+                //do nothing
+            } else {
+                label.insertAfter(element);
+            }
+        },
+
+        error: function (label, element) {
+            //自定义成功提示
+            label.closest('.control-group').removeClass('success').addClass('error'); // set success class to the control group
+            label.attr("data-original-title", label.text());
+            label.html("<i class='icon-exclamation-sign'></i>");
+            if (($(element)).attr("name") == "brand_photo") {
+                //do nothing
+            } else {
+                label.insertAfter(element);
+            }
+        },
+
+        update: function () {
+            App.updateTooltips();
+        },
+
+        submitHandler: function (form) {
+            error.hide();
+            jQuery.ajax({
+                type: 'POST',
+                url: $(form).attr("action"),
+                data: $(form).serialize(),
+                dataType: 'script'
+            });
+            //add here some ajax code to submit your form or just call form.submit() if you want to submit the form without ajax
+        }
+    });
+
+
+    function show_upload_div(shop_id) {
+        var document_id = $("#brand_photo").val();
+        var path = "/brands/show_upload_div";
+        if (document_id && document_id != "") {
+            path = path + "?document_id=" + document_id;
+        }
+        $.ajax({
+            async: false,
+            type: "GET",
+            url: path,
+            dataType: 'script'
+        });
+
+    }
+
+    function validate() {
+        form.submit();
+    }
+
+</script>
+
